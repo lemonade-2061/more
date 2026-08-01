@@ -8,6 +8,14 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type CheerTemplate struct {
+	ID          int32
+	Zone        string
+	MinProgress int32
+	MaxProgress int32
+	Text        string
+}
+
 type StepEvent struct {
 	ID        int64
 	UserID    string
