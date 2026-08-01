@@ -31,7 +31,7 @@
             ホーム
             </button>
             <button className="btn-retry-terracotta" onClick={onRetry}>
-            <gitimg src={retryIcon} alt="Retry" className="button-icon-white" />
+            <img src={retryIcon} alt="Retry" className="button-icon-white" />
             再トライ
             </button>
         </div>
