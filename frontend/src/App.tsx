@@ -1,3 +1,5 @@
+import StepDebug from "./pages/StepDebug";
+
 export default function App() {
-  return <h1>Vite + React</h1>;
+  return <StepDebug />;
 }
