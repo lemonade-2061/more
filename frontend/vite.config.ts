@@ -18,5 +18,13 @@ export default defineConfig({
     },
     // トンネルで実機確認するときだけ有効化 (常時有効にすると PC のブラウザ側の HMR が壊れる)
     // hmr: { protocol: "wss", clientPort: 443 },
+    // /api は backend コンテナへ転送する。フロントと同一オリジンになるので
+    // トンネル経由のスマホからも CORS 無しでそのまま届く
+    proxy: {
+      "/api": {
+        target: "http://backend:8080",
+        changeOrigin: true,
+      },
+    },
   },
 });
