@@ -1,29 +1,51 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
 
-	// 自分のプロジェクトのモジュール名に合わせて変更してください
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"hackathon/backend/internal/db"
 	"hackathon/backend/internal/handler"
 	"hackathon/backend/internal/voicevox"
 )
 
 func main() {
-	// 1. VOICEVOX クライアントの初期化
+	ctx := context.Background()
+
+	pool, err := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatalf("connect db: %v", err)
+	}
+	defer pool.Close()
+
+	queries := db.New(pool)
+	steps := handler.NewSteps(queries)
+
+	// VOICEVOX クライアントの初期化
 	vvClient, err := voicevox.NewClient()
 	if err != nil {
 		log.Fatalf("VOICEVOX クライアントの初期化に失敗しました: %v", err)
 	}
-
-	// 2. ハンドラの初期化
 	vvHandler := handler.NewVoicevoxHandler(vvClient)
 
-	// 3. ルーティングの追加 (/speech で音声合成)
-	http.HandleFunc("/speech", vvHandler.HandleSynthesize)
+	mux := http.NewServeMux()
 
-	log.Println("Listening on :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
-	}
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
+	})
+
+	mux.HandleFunc("POST /api/steps", steps.Post)
+	mux.HandleFunc("DELETE /api/steps", steps.Delete)
+	mux.HandleFunc("GET /api/steps/summary", steps.Summary)
+
+	// /speech で音声合成
+	mux.HandleFunc("/speech", vvHandler.HandleSynthesize)
+
+	log.Println("listening on :8080")
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }

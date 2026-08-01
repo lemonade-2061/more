@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import './App.css';
+import StepDebug from './pages/StepDebug';
 
 // 画像の読み込み（画像がない場合でもエラーにならないように記述）
-import logoImage from './assets/Vector_2.png'; 
+import logoImage from './assets/Vector_2.png';
 
 export function App() {
   const [username, setUsername] = useState<string>('');
@@ -19,6 +20,11 @@ export function App() {
   const handleGoBack = () => {
     setCurrentView('home');
   };
+
+  // ?debug=1 を付けたときだけ歩数検出の調整画面を出す (デモ URL には影響しない)
+  if (new URLSearchParams(window.location.search).has('debug')) {
+    return <StepDebug />;
+  }
 
   return (
     <div className="app-screen">
