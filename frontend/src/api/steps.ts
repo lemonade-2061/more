@@ -32,6 +32,18 @@ export function postStepsBeacon(userId: string, events: StepEvent[]): boolean {
   return navigator.sendBeacon("/api/steps", body);
 }
 
+// テスト・リセット用: このユーザーのサーバー側の記録を全削除する
+export async function deleteSteps(userId: string): Promise<number> {
+  const res = await fetch(`/api/steps?${new URLSearchParams({ user_id: userId })}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) {
+    throw new Error(`DELETE /api/steps failed: ${res.status}`);
+  }
+  const data = (await res.json()) as { deleted: number };
+  return data.deleted;
+}
+
 export async function fetchStepSummary(
   userId: string,
   range?: { from: Date; to: Date },

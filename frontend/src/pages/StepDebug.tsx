@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchStepSummary, type StepSummary } from "../api/steps";
+import { deleteSteps, fetchStepSummary, type StepSummary } from "../api/steps";
 import { useStepDetector, type Sample } from "../steps/useStepDetector";
 
 function getUserId(): string {
@@ -71,6 +71,28 @@ export default function StepDebug() {
     return () => cancelAnimationFrame(rafId);
   }, [detector.samplesRef, detector.threshold]);
 
+  // 生ログの件数表示用 (60Hz の全サンプルを state に入れると重いので1秒ごとに数だけ拾う)
+  const [logCount, setLogCount] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setLogCount(detector.logRef.current.length), 1000);
+    return () => clearInterval(id);
+  }, [detector.logRef]);
+
+  const downloadLog = () => {
+    const rows = detector.logRef.current;
+    const csv =
+      "t_ms,time,signal,step\n" +
+      rows
+        .map((r) => `${r.t},${new Date(r.t).toISOString()},${r.signal.toFixed(4)},${r.step}`)
+        .join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `steps-${userId}-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const loadSummary = async () => {
     try {
       setSummary(await fetchStepSummary(userId));
@@ -89,8 +111,20 @@ export default function StepDebug() {
         {detector.stepCount}
         <span style={{ fontSize: 20, marginLeft: 8 }}>歩</span>
       </div>
-      <p style={{ color: "#888" }}>サーバー送信済み: {detector.sentCount} 歩</p>
+      <p style={{ color: "#888" }}>
+        サーバー送信済み: {detector.sentCount} 歩
+        {detector.detecting && (
+          <span style={{ marginLeft: 12, color: detector.inRhythm ? "green" : "#888" }}>
+            {detector.inRhythm ? "歩行中" : "リズム待ち"}
+          </span>
+        )}
+      </p>
 
+      {detector.inWarmup && (
+        <p style={{ color: "darkorange", fontWeight: "bold" }}>
+          準備中… 3秒以内にポケットへ (この間はカウントしません)
+        </p>
+      )}
       {detector.detecting ? (
         <button onClick={detector.stop} style={{ padding: "12px 32px", fontSize: 18 }}>
           停止
@@ -104,6 +138,25 @@ export default function StepDebug() {
         </button>
       )}
 
+      {" "}
+      <button
+        onClick={() => detector.reset()}
+        style={{ padding: "12px 24px", fontSize: 18 }}
+      >
+        カウントを0に
+      </button>{" "}
+      <button
+        onClick={() => {
+          if (!window.confirm("サーバーに保存した歩数記録も全部消します。いい?")) return;
+          detector.reset();
+          deleteSteps(userId)
+            .then(() => setSummary(null))
+            .catch((err) => setSummaryError(String(err)));
+        }}
+      >
+        サーバー記録ごと全消し
+      </button>
+
       {detector.error && <p style={{ color: "red" }}>{detector.error}</p>}
 
       <h3>波形 (青: 信号 / 赤: 閾値)</h3>
@@ -114,7 +167,12 @@ export default function StepDebug() {
         style={{ border: "1px solid #ddd", width: "100%" }}
       />
 
-      <div>
+      {/* 誤タップでパラメータが動くと検証がやり直しになるので、普段は畳んでおく */}
+      <details>
+        <summary>
+          詳細設定 (閾値 {detector.threshold.toFixed(1)} m/s² / 不応期{" "}
+          {detector.refractoryMs} ms)
+        </summary>
         <label>
           閾値: {detector.threshold.toFixed(1)} m/s²
           <input
@@ -132,14 +190,28 @@ export default function StepDebug() {
           <input
             type="range"
             min={150}
-            max={600}
+            max={900}
             step={50}
             value={detector.refractoryMs}
             onChange={(e) => detector.setRefractoryMs(Number(e.target.value))}
             style={{ width: "100%" }}
           />
         </label>
-      </div>
+      </details>
+
+      <h3>生ログ (閾値決め用)</h3>
+      <p style={{ color: "#888" }}>{logCount} サンプル記録済み</p>
+      <button onClick={downloadLog} disabled={logCount === 0}>
+        CSVダウンロード
+      </button>{" "}
+      <button
+        onClick={() => {
+          detector.clearLog();
+          setLogCount(0);
+        }}
+      >
+        ログをクリア
+      </button>
 
       <h3>サーバー集計 (直近24時間)</h3>
       <button onClick={() => void loadSummary()}>集計を取得</button>

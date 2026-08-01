@@ -59,6 +59,24 @@ func (s *Steps) Post(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]any{"inserted": n})
 }
 
+// Delete は指定ユーザーの歩数記録を全削除する (テスト・リセット用)。
+// DELETE /api/steps?user_id=...
+func (s *Steps) Delete(w http.ResponseWriter, r *http.Request) {
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		http.Error(w, "user_id is required", http.StatusBadRequest)
+		return
+	}
+	n, err := s.q.DeleteStepEvents(r.Context(), userID)
+	if err != nil {
+		log.Printf("delete step events: %v", err)
+		http.Error(w, "db error", http.StatusInternalServerError)
+		return
+	}
+	log.Printf("steps: user=%s deleted=%d", userID, n)
+	writeJSON(w, map[string]any{"deleted": n})
+}
+
 // Summary は期間内の合計歩数と分単位の推移を返す。
 // GET /api/steps/summary?user_id=...&from=RFC3339&to=RFC3339 (from/to 省略時は直近24時間)
 func (s *Steps) Summary(w http.ResponseWriter, r *http.Request) {

@@ -29,6 +29,18 @@ func (q *Queries) CountSteps(ctx context.Context, arg CountStepsParams) (int64, 
 	return count, err
 }
 
+const deleteStepEvents = `-- name: DeleteStepEvents :execrows
+DELETE FROM step_events WHERE user_id = $1
+`
+
+func (q *Queries) DeleteStepEvents(ctx context.Context, userID string) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteStepEvents, userID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 type InsertStepEventsParams struct {
 	UserID    string
 	SteppedAt pgtype.Timestamptz

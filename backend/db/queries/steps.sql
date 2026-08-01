@@ -6,6 +6,9 @@ VALUES ($1, $2, $3);
 SELECT count(*) FROM step_events
 WHERE user_id = $1 AND stepped_at BETWEEN $2 AND $3;
 
+-- name: DeleteStepEvents :execrows
+DELETE FROM step_events WHERE user_id = $1;
+
 -- name: StepsPerMinute :many
 SELECT date_trunc('minute', stepped_at)::timestamptz AS minute, count(*) AS steps
 FROM step_events

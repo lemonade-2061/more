@@ -32,6 +32,7 @@ func main() {
 	})
 
 	mux.HandleFunc("POST /api/steps", steps.Post)
+	mux.HandleFunc("DELETE /api/steps", steps.Delete)
 	mux.HandleFunc("GET /api/steps/summary", steps.Summary)
 
 	log.Println("listening on :8080")
