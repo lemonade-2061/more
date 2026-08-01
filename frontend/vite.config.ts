@@ -25,6 +25,10 @@ export default defineConfig({
         target: "http://backend:8080",
         changeOrigin: true,
       },
+      "/speech": {
+        target: "http://backend:8080",
+        changeOrigin: true,
+      },
     },
   },
 });
