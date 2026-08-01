@@ -35,7 +35,7 @@ func (s *S3AudioStore) Save(ctx context.Context, key string, data []byte) error 
 // 2. URL: 保存したファイルにアクセスするためのURLを作成する処理
 func (s *S3AudioStore) URL(key string) string {
 	// エンドポイント（接続先）とバケット名、ファイル名をガッチャンコしてURLを作る
-	return fmt.Sprintf("%s/%s/%s", s.client.Options().BaseEndpoint, s.bucket, key)
+	return fmt.Sprintf("%s/%s/%s", aws.ToString(s.client.Options().BaseEndpoint), s.bucket, key)
 }
 
 // 3. Exists: ファイルがすでに存在するかチェックする処理
