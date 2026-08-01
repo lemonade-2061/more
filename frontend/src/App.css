@@ -1,0 +1,138 @@
+/* 全体背景とセンタリング */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* スマホ風コンテナ */
+.app-screen {
+  width: 100%;
+  max-width: 360px;
+  min-height: 500px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* MORE リボンロゴ */
+.ribbon-container {
+  position: relative;
+  margin-bottom: 50px;
+}
+
+.ribbon {
+  position: relative;
+  background: #e0b020;
+  color: #000;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  padding: 10px 45px;
+  text-align: center;
+  border-radius: 2px;
+}
+
+.ribbon::before,
+.ribbon::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  border: 25px solid #e0b020;
+  z-index: -1;
+}
+
+.ribbon::before {
+  left: -35px;
+  border-left-color: transparent;
+}
+
+.ribbon::after {
+  right: -35px;
+  border-right-color: transparent;
+}
+
+/* 名前入力ボックス */
+.input-box {
+  width: 80%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  background-color: #dcdcdc;
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  outline: none;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.input-box::placeholder {
+  color: #333;
+}
+
+/* セットアップへボタン（ネオンイエロー） */
+.btn-setup {
+  width: 80%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #ccff00;
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s, background-color 0.2s;
+}
+
+.btn-setup:active {
+  transform: scale(0.98);
+  background-color: #b3e600;
+}
+
+/* セットアップ画面用スタイル */
+.greeting-text {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.greeting-text span {
+  font-weight: bold;
+  color: #000;
+}
+
+.description-text {
+  color: #666;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.btn-back {
+  background-color: #eee;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
