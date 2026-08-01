@@ -36,7 +36,7 @@ func main() {
 	// 3. S3 (LocalStack) ストアの設定読み込み (空の場合はデフォルト値を使用)
 	endpointURL := os.Getenv("S3_ENDPOINT")
 	if endpointURL == "" {
-		endpointURL = "http://localstack:4566"
+		endpointURL = "http://minio:9000"
 	}
 	region := os.Getenv("AWS_REGION")
 	if region == "" {

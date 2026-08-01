@@ -3,7 +3,10 @@ package store
 
 import (
 	"context"
+	"fmt"
+	"errors"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -26,11 +29,19 @@ func NewS3AudioStore(ctx context.Context, endpointURL, region, bucket string) (*
 			o.BaseEndpoint = aws.String(endpointURL)
 		}
 
-		// ⚠️【最重要ポイント】
-		// LocalStackを使うときは、必ず URL の形式を「パス形式」にする！
 		o.UsePathStyle = true
 	})
 
+  _, err = s3Client.CreateBucket(ctx, &s3.CreateBucketInput{
+              Bucket: aws.String(bucket),
+  })
+  if err != nil {
+     var owned *types.BucketAlreadyOwnedByYou
+     var exists *types.BucketAlreadyExists
+     if !errors.As(err, &owned) && !errors.As(err, &exists) {
+        return nil, fmt.Errorf("バケット作成に失敗: %w", err)
+     }
+  }
 	return &S3AudioStore{
 		client: s3Client,
 		bucket: bucket,
