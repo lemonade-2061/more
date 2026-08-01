@@ -83,6 +83,31 @@ body {
   transition: transform 0.1s, background-color 0.2s;
 }
 
+.button-group{
+  display: flex;
+  jutify-content: center;
+  aligin-items: center;
+  width: 85%;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.button-group button{
+
+  flex: 1;
+  padding: 12px 8px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s,background-color 0.2s;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+
 .btn-setup:active {
   transform: scale(0.98);
   background-color: #b3e600;
@@ -107,10 +132,81 @@ body {
   margin-bottom: 30px;
 }
 
-.btn-back {
-  background-color: #eee;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
+.btn-back,
+.btn-setup,
+.btn-start {
+  padding: 10px 24px;
+  border-radius: 8px;
   cursor: pointer;
+}
+
+.btn-back{
+  background-color: #0881eb !important;
+  color: black !important;
+  transform: scale(0.98) !important;
+
+}
+
+.dropdown-container{
+  position: relative;
+  width: 85%;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.dropdown-toggle {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: bold;
+  background-color: #ffffff;
+  color: #333333;
+  border: 2px solid #0881eb;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-menu {
+  position: absolute; /* ★画面を押し広げず、上にフワッと浮かせます */
+  top: 1dvh;          /* ボタンのすぐ下に配置 */
+  left: 0;
+  width: 100%;        /* ボタンと同じ横幅に固定 */
+  margin-top: 6px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* 影をつけて浮いている感を出します */
+  z-index: 100;       /* 他のボタンや要素の上に重なるようにする */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;   /* 角丸からはみ出るのを防ぐ */
+  box-sizing: border-box;
+}
+.dropdown-item {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  background-color: #ffffff;
+  color: #333333;
+  border: none;
+  border-bottom: 1px solid #f0f0f0; /* 薄い仕切り線 */
+  cursor: pointer;
+  text-align: center;
+  box-sizing: border-box;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none; /* 一番下の線の消去 */
+}
+
+/* ホバー（タップ）したときの色変化 */
+.dropdown-item:hover,
+.dropdown-item:active {
+  background-color: #f0f8ff; /* かすかに青っぽいハイライト */
 }
