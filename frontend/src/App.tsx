@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import './App.css';
 
 import StepDebug from './pages/StepDebug';
+import VoiceDebug from './pages/VoiceDebug';
 import HomeView from './pages/HomeView';
 import SetupView from './pages/SetupView';
 import SettingView from './pages/SettingView';
@@ -65,8 +66,12 @@ export function App() {
     setCurrentView('result');
   };
 
-  // デバッグ判定
-  if (new URLSearchParams(window.location.search).has('debug')) {
+  // デバッグ判定: ?debug=voice でボイステスト、それ以外の ?debug は歩数調整画面
+  const debugMode = new URLSearchParams(window.location.search).get('debug');
+  if (debugMode === 'voice') {
+    return <VoiceDebug />;
+  }
+  if (debugMode !== null) {
     return <StepDebug />;
   }
 

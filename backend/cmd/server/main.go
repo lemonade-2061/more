@@ -49,9 +49,11 @@ func main() {
 	log.Printf("S3設定: Endpoint=%s, Region=%s, Bucket=%s", endpointURL, region, bucket)
 
 	// 4. S3AudioStore の初期化
+	// 失敗してもサーバーは落とさない (音声保存以外の機能は生かすため。ハンドラ側に nil チェックあり)
 	audioStore, err := store.NewS3AudioStore(ctx, endpointURL, region, bucket)
 	if err != nil {
-		log.Fatalf("S3AudioStoreの初期化に失敗しました: %v", err)
+		log.Printf("S3AudioStoreの初期化に失敗しました (音声保存なしで続行します): %v", err)
+		audioStore = nil
 	}
 
 	// 5. ハンドラの初期化 (audioStore を渡す)
