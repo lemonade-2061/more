@@ -1,0 +1,21 @@
+# 環境変数 (秘密情報を含みうる)
+.env
+
+# Node
+node_modules/
+frontend/dist/
+
+# Go (air のビルド成果物)
+backend/tmp/
+
+# 生成される音声ファイル — コミットするとリポジトリが肥大化するので厳禁
+# (frontend/src/audio はソース用ディレクトリなので audio/ を丸ごとは除外しない)
+*.wav
+*.mp3
+*.ogg
+audio_out/
+backend/audio/
+
+# Postgres のデータ (named volume を使っているが、バインドマウントに変えた場合の保険)
+postgres-data/
+pgdata/

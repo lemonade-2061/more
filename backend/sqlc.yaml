@@ -1,0 +1,12 @@
+# 当日 db/schema と db/queries に SQL を置いてから
+# コンテナ内で sqlc generate を実行する。生成先は internal/db (手で編集しない)
+version: "2"
+sql:
+  - engine: "postgresql"
+    schema: "db/schema"
+    queries: "db/queries"
+    gen:
+      go:
+        package: "db"
+        out: "internal/db"
+        sql_package: "pgx/v5"
