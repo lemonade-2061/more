@@ -5,6 +5,8 @@ export function App() {
   const [username, setUsername] = useState<string>('');
   const [currentView, setCurrentView] = useState<'home' | 'setup' | 'setting'>('home');
 
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [selectedGoal, setSelectedGoal]= useState<string>('目標を選択してください');
   const handleGoToSetup = () => {
     if (username.trim() === '') {
       alert('名前を入力してください！');
@@ -65,12 +67,48 @@ export function App() {
       {/* 画面3: セットアップ画面（設定・スタート画面） */}
       {currentView === 'setting' && (
         <div className="view">
-          <h2>項目設定画面</h2>
-          <p className="description-text">設定を完了してアプリを開始します。</p>
 
-          {/* ここに設定項目（入力欄など）を追加していく */}
+          <div className = "dropdown-container">
+            <button type="button" className = "dropdown-toggle" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+              {selectedGoal}
+            </button>
+            {isDropdownOpen && (
+              <div className ="dropdown-menu">
+                <button type="button" className="dropdown-item"
+                onClick={() => {
+                  setSelectedGoal("目標時間");
+                  setIsDropdownOpen(false);
+                }}
+                >
+                  目標時間（分）
+                </button>
 
-          {/* ボタンエリア */}
+                <button type ="button" className="dropdown-item"
+                onClick={() => {
+                    setSelectedGoal('目標距離');
+                    setIsDropdownOpen(false);
+                  }}
+                  >
+                    目標距離（km）
+                  </button>
+
+
+                  <button type ="button" className="dropdown-item"
+                onClick={() => {
+                    setSelectedGoal('目標歩数');
+                    setIsDropdownOpen(false);
+                  }}
+                  >
+                    目標歩数
+                  </button>
+
+                  
+                  </div>
+            )}
+          </div>
+
+          {/*プルダウンおわり*/}
+
           <div className="button-group">
             <button className="btn-back" onClick={() => setCurrentView('setup')}>
               戻る
@@ -78,9 +116,12 @@ export function App() {
             <button className="btn-start">
               スタート
             </button>
-          </div>
+            <button className="set-goal">目標設定</button>
+            </div>
+
         </div>
-      )}
+      )};
+
     </div>
   );
 }
