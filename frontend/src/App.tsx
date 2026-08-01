@@ -18,6 +18,10 @@ export function App() {
   // 画面表示ステート ('home' | 'setup' | 'setting' | 'count' | 'result')
   const [currentView, setCurrentView] = useState<'home' | 'setup' | 'setting' | 'count' | 'result'>('home');
   
+  // ドロップダウン用ステート
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [selectedGoal, setSelectedGoal] = useState<string>('目標を選択してください');
+
   // カウントダウン用の状態
   const [countdown, setCountdown] = useState<number | null>(null);
 
@@ -118,12 +122,61 @@ export function App() {
         </div>
       )}
 
-      {/* 画面3: 項目設定 */}
+      {/* 画面3: 項目設定画面（プルダウン併設） */}
       {currentView === 'setting' && (
         <div className="view">
           <h2>項目設定画面</h2>
-          <p className="description-text">設定を完了してアプリを開始します。</p>
+          <p className="description-text">運動目標を選択してスタートしましょう。</p>
 
+          {/* ドロップダウンメニュー */}
+          <div className="dropdown-container">
+            <button
+              type="button"
+              className="dropdown-toggle"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              {selectedGoal}
+            </button>
+            
+            {isDropdownOpen && (
+              <div className="dropdown-menu">
+                <button
+                  type="button"
+                  className="dropdown-item"
+                  onClick={() => {
+                    setSelectedGoal('目標時間（分）');
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  目標時間（分）
+                </button>
+
+                <button
+                  type="button"
+                  className="dropdown-item"
+                  onClick={() => {
+                    setSelectedGoal('目標距離（km）');
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  目標距離（km）
+                </button>
+
+                <button
+                  type="button"
+                  className="dropdown-item"
+                  onClick={() => {
+                    setSelectedGoal('目標歩数');
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  目標歩数
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* 操作ボタンエリア */}
           <div className="button-group">
             <button className="btn-back" onClick={() => setCurrentView('setup')}>
               戻る
@@ -158,18 +211,14 @@ export function App() {
         </div>
       )}
 
-      {/* --------------------------------------------------
-          画面5: リザルト画面 (画像デザイン完全再現)
-         -------------------------------------------------- */}
+      {/* 画面5: リザルト画面 */}
       {currentView === 'result' && (
         <div className="result-page-container">
-          {/* オレンジイエローの成果ボード */}
           <div className="result-card-yellow">
             <span className="result-label">今回は</span>
             <span className="result-value">{totalDistance}!</span>
           </div>
 
-          {/* キャラクター ＋ 左三角つき吹き出し */}
           <div className="chat-section">
             <img src={charIcon} alt="Character" className="char-avatar" />
             <div className="result-speech-bubble">
@@ -178,7 +227,6 @@ export function App() {
             </div>
           </div>
 
-          {/* ホーム＆再トライボタン */}
           <div className="result-action-group">
             <button className="btn-home-teal" onClick={() => setCurrentView('home')}>
               <img src={homeIcon} alt="Home" className="button-icon-white" />
