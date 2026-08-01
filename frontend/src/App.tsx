@@ -1,31 +1,43 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
 
 import StepDebug from './pages/StepDebug';
 import VoiceDebug from './pages/VoiceDebug';
 import HomeView from './pages/HomeView';
 import SetupView from './pages/SetupView';
-import SettingView from './pages/SettingView';
+import SettingView, { STRIDE_M } from './pages/SettingView';
 import CountView from './pages/CountView';
 import ResultView from './pages/ResultView';
 import CountdownOverlay from './pages/CountdownOverlay';
 
+import { useStepDetector } from './steps/useStepDetector';
+import { getUserId } from './steps/userId';
+import { fetchCheer } from './api/cheer';
+import { voicePlayer } from './audio/player';
+
+// 応援セリフを取りに行く間隔。合成に数秒かかるので詰めすぎない
+const CHEER_INTERVAL_MS = 15000;
+
 export function App() {
   const [username, setUsername] = useState<string>('');
-  
+
   // 画面表示ステート ('home' | 'setup' | 'setting' | 'count' | 'result')
   const [currentView, setCurrentView] = useState<'home' | 'setup' | 'setting' | 'count' | 'result'>('home');
 
   // カウントダウン用の状態
   const [countdown, setCountdown] = useState<number | null>(null);
 
-  // 計測データ
-  const [distance, setDistance] = useState<number>(100);
-  const [message, setMessage] = useState<string>('もうちょっとだ！');
+  // 計測まわり
+  const [userId] = useState(getUserId);
+  const detector = useStepDetector(userId);
+  const [goalSteps, setGoalSteps] = useState<number>(30);
+  const [message, setMessage] = useState<string>('がんばろう！');
+  const sessionStartRef = useRef<Date | null>(null);
+  const cheerBusyRef = useRef(false);
 
   // リザルトデータ
-  const [totalDistance, setTotalDistance] = useState<string>('2km');
-  const [diffDistance, setDiffDistance] = useState<string>('+100m');
+  const [totalDistance, setTotalDistance] = useState<string>('0m');
+  const [diffDistance, setDiffDistance] = useState<string>('+0m');
 
   const handleGoToSetup = () => {
     if (username.trim() === '') {
@@ -39,11 +51,14 @@ export function App() {
     setCurrentView('home');
   };
 
-  const handleStartCountdown = () => {
+  const handleStartCountdown = (goal: number) => {
+    setGoalSteps(goal);
+    // ユーザー操作(タップ)の文脈で音声をアンロックしておく (スマホの自動再生対策)
+    voicePlayer.init();
     setCountdown(3);
   };
 
-  // カウントダウン処理
+  // カウントダウン処理: 0 になったら計測開始
   useEffect(() => {
     if (countdown === null) return;
 
@@ -55,15 +70,63 @@ export function App() {
     } else if (countdown === 0) {
       const timer = setTimeout(() => {
         setCountdown(null);
+        sessionStartRef.current = new Date();
+        detector.reset();
+        void detector.start();
+        setMessage('がんばろう！');
         setCurrentView('count');
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [countdown]);
+  }, [countdown, detector]);
+
+  // 計測終了の共通処理: 検出を止めて距離を集計しリザルトへ
+  const finishSession = (achieved: boolean) => {
+    detector.stop();
+    const dist = Math.round(detector.stepCount * STRIDE_M);
+    setTotalDistance(`${dist}m`);
+    const last = Number(localStorage.getItem('last-distance-m') ?? '0');
+    const diff = dist - last;
+    setDiffDistance(`${diff >= 0 ? '+' : ''}${diff}m`);
+    localStorage.setItem('last-distance-m', String(dist));
+    setCurrentView('result');
+    if (achieved) {
+      const text = 'おめでとう！目標達成だよ！本当によくがんばったね！';
+      void voicePlayer.play(`/speech?${new URLSearchParams({ text })}`);
+    }
+  };
+
+  // 目標歩数に到達したら自動でリザルトへ
+  useEffect(() => {
+    if (currentView !== 'count') return;
+    if (detector.stepCount >= goalSteps) {
+      finishSession(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detector.stepCount, currentView, goalSteps]);
+
+  // 計測中は定期的に応援セリフを取得して表示+読み上げ
+  useEffect(() => {
+    if (currentView !== 'count') return;
+    const id = setInterval(async () => {
+      if (cheerBusyRef.current || !sessionStartRef.current) return;
+      cheerBusyRef.current = true;
+      try {
+        const cheer = await fetchCheer(userId, goalSteps, sessionStartRef.current);
+        setMessage(cheer.text);
+        await voicePlayer.play(`/speech?${new URLSearchParams({ text: cheer.text })}`);
+      } catch (err) {
+        console.error('cheer error:', err);
+      } finally {
+        cheerBusyRef.current = false;
+      }
+    }, CHEER_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [currentView, userId, goalSteps]);
 
   // ギブアップ処理でリザルト画面へ
   const handleGiveUp = () => {
-    setCurrentView('result');
+    finishSession(false);
   };
 
   // デバッグ判定: ?debug=voice でボイステスト、それ以外の ?debug は歩数調整画面
@@ -74,6 +137,9 @@ export function App() {
   if (debugMode !== null) {
     return <StepDebug />;
   }
+
+  // 残り距離 (m): 目標歩数 - 現在歩数 を歩幅で換算
+  const remainingM = Math.max(0, Math.round((goalSteps - detector.stepCount) * STRIDE_M));
 
   return (
     <div className="app-screen">
@@ -106,7 +172,7 @@ export function App() {
       {/* 画面4: カウント計測 */}
       {currentView === 'count' && (
         <CountView
-          distance={distance}
+          distance={remainingM}
           message={message}
           onGiveUp={handleGiveUp}
         />
@@ -118,7 +184,7 @@ export function App() {
           totalDistance={totalDistance}
           diffDistance={diffDistance}
           onGoHome={() => setCurrentView('home')}
-          onRetry={handleStartCountdown}
+          onRetry={() => handleStartCountdown(goalSteps)}
         />
       )}
 
