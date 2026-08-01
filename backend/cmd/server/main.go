@@ -3,16 +3,27 @@ package main
 import (
 	"log"
 	"net/http"
+
+	// 自分のプロジェクトのモジュール名に合わせて変更してください
+	"hackathon/backend/internal/handler"
+	"hackathon/backend/internal/voicevox"
 )
 
 func main() {
-	mux := http.NewServeMux()
+	// 1. VOICEVOX クライアントの初期化
+	vvClient, err := voicevox.NewClient()
+	if err != nil {
+		log.Fatalf("VOICEVOX クライアントの初期化に失敗しました: %v", err)
+	}
 
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
-	})
+	// 2. ハンドラの初期化
+	vvHandler := handler.NewVoicevoxHandler(vvClient)
 
-	log.Println("listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	// 3. ルーティングの追加 (/speech で音声合成)
+	http.HandleFunc("/speech", vvHandler.HandleSynthesize)
+
+	log.Println("Listening on :8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatal(err)
+	}
 }
