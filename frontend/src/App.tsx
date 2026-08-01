@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import './App.css';
 
+// 画像の読み込み（画像がない場合でもエラーにならないように記述）
+import logoImage from './assets/Vector_2.png'; 
+
 export function App() {
   const [username, setUsername] = useState<string>('');
   const [currentView, setCurrentView] = useState<'home' | 'setup'>('home');
@@ -22,12 +25,16 @@ export function App() {
       {/* 画面1: 名前入力画面 */}
       {currentView === 'home' && (
         <div className="view">
-          {/* リボンロゴ */}
+          {/* ロゴ画像表示エリア */}
           <div className="ribbon-container">
-            <div className="ribbon">MORE</div>
+            {logoImage ? (
+              <img src={logoImage} alt="MORE Logo" className="logo-img" />
+            ) : (
+              <div className="ribbon">MORE</div>
+            )}
           </div>
 
-          {/* 入力欄 */}
+          {/* 名前入力欄 */}
           <input
             type="text"
             className="input-box"
