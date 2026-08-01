@@ -1,26 +1,19 @@
 import { useState, useEffect } from 'react';
 import './App.css';
-import StepDebug from './pages/StepDebug';
 
-// 画像の読み込み
-import logoImage from './assets/Vector_2.png';
-import img1 from './assets/1.png';
-import img2 from './assets/2.png';
-import img3 from './assets/3.png';
-import charIcon from './assets/Vector (2).png';  // キャラクター顔画像
-import handIcon from './assets/Rectangle 33.png'; // 手のアイコン
-import homeIcon from './assets/Rectangle 34.png'; // 家アイコン（ホーム）
-import retryIcon from './assets/Ellipse 16.png';  // 矢印アイコン（再トライ）
+import StepDebug from './pages/StepDebug';
+import HomeView from './pages/HomeView';
+import SetupView from './pages/SetupView';
+import SettingView from './pages/SettingView';
+import CountView from './pages/CountView';
+import ResultView from './pages/ResultView';
+import CountdownOverlay from './pages/CountdownOverlay';
 
 export function App() {
   const [username, setUsername] = useState<string>('');
   
   // 画面表示ステート ('home' | 'setup' | 'setting' | 'count' | 'result')
   const [currentView, setCurrentView] = useState<'home' | 'setup' | 'setting' | 'count' | 'result'>('home');
-  
-  // ドロップダウン用ステート
-  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  const [selectedGoal, setSelectedGoal] = useState<string>('目標を選択してください');
 
   // カウントダウン用の状態
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -81,174 +74,51 @@ export function App() {
     <div className="app-screen">
       {/* 画面1: ホーム */}
       {currentView === 'home' && (
-        <div className="view">
-          <div className="ribbon-container">
-            {logoImage ? (
-              <img src={logoImage} alt="MORE Logo" className="logo-img" />
-            ) : (
-              <div className="ribbon">MORE</div>
-            )}
-          </div>
-
-          <input
-            type="text"
-            className="input-box"
-            placeholder="名前を入力"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-
-          <button className="btn-setup" onClick={handleGoToSetup}>
-            セットアップへ
-          </button>
-        </div>
+        <HomeView
+          username={username}
+          setUsername={setUsername}
+          onGoToSetup={handleGoToSetup}
+        />
       )}
 
       {/* 画面2: セットアップ事前 */}
       {currentView === 'setup' && (
-        <div className="view">
-          <h2>セットアップ</h2>
-          <p className="greeting-text"><span>{username}</span> さん、ようこそ！</p>
-          <p className="description-text">ここで運動目標や初期設定を行ないます。</p>
-          
-          <div className="button-group">
-            <button className="btn-back" onClick={handleGoBack}>
-              戻る
-            </button>
-            <button className="btn-setup" onClick={() => setCurrentView('setting')}>
-              次へ
-            </button>
-          </div>
-        </div>
+        <SetupView
+          username={username}
+          onGoBack={handleGoBack}
+          onGoNext={() => setCurrentView('setting')}
+        />
       )}
 
-      {/* 画面3: 項目設定画面（プルダウン併設） */}
+      {/* 画面3: 項目設定画面 */}
       {currentView === 'setting' && (
-        <div className="view">
-          <h2>項目設定画面</h2>
-          <p className="description-text">運動目標を選択してスタートしましょう。</p>
-
-          {/* ドロップダウンメニュー */}
-          <div className="dropdown-container">
-            <button
-              type="button"
-              className="dropdown-toggle"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              {selectedGoal}
-            </button>
-            
-            {isDropdownOpen && (
-              <div className="dropdown-menu">
-                <button
-                  type="button"
-                  className="dropdown-item"
-                  onClick={() => {
-                    setSelectedGoal('目標時間（分）');
-                    setIsDropdownOpen(false);
-                  }}
-                >
-                  目標時間（分）
-                </button>
-
-                <button
-                  type="button"
-                  className="dropdown-item"
-                  onClick={() => {
-                    setSelectedGoal('目標距離（km）');
-                    setIsDropdownOpen(false);
-                  }}
-                >
-                  目標距離（km）
-                </button>
-
-                <button
-                  type="button"
-                  className="dropdown-item"
-                  onClick={() => {
-                    setSelectedGoal('目標歩数');
-                    setIsDropdownOpen(false);
-                  }}
-                >
-                  目標歩数
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* 操作ボタンエリア */}
-          <div className="button-group">
-            <button className="btn-back" onClick={() => setCurrentView('setup')}>
-              戻る
-            </button>
-            <button className="btn-start" onClick={handleStartCountdown}>
-              スタート
-            </button>
-          </div>
-        </div>
+        <SettingView
+          onGoBack={() => setCurrentView('setup')}
+          onStartCountdown={handleStartCountdown}
+        />
       )}
 
       {/* 画面4: カウント計測 */}
       {currentView === 'count' && (
-        <div className="count-page-container">
-          <div className="distance-orange-card">
-            後<span className="distance-num">{distance}</span>m
-          </div>
-
-          <div className="chat-section">
-            <img src={charIcon} alt="Character" className="char-avatar" />
-            <div className="speech-bubble">
-              {message}
-            </div>
-          </div>
-
-          <div className="bottom-button-wrapper">
-            <button className="btn-giveup-red" onClick={handleGiveUp}>
-              もう無理
-              <img src={handIcon} alt="Hand" className="hand-icon" />
-            </button>
-          </div>
-        </div>
+        <CountView
+          distance={distance}
+          message={message}
+          onGiveUp={handleGiveUp}
+        />
       )}
 
       {/* 画面5: リザルト画面 */}
       {currentView === 'result' && (
-        <div className="result-page-container">
-          <div className="result-card-yellow">
-            <span className="result-label">今回は</span>
-            <span className="result-value">{totalDistance}!</span>
-          </div>
-
-          <div className="chat-section">
-            <img src={charIcon} alt="Character" className="char-avatar" />
-            <div className="result-speech-bubble">
-              <div className="bubble-text">がんばった！</div>
-              <div className="bubble-text">前回より {diffDistance}!</div>
-            </div>
-          </div>
-
-          <div className="result-action-group">
-            <button className="btn-home-teal" onClick={() => setCurrentView('home')}>
-              <img src={homeIcon} alt="Home" className="button-icon-white" />
-              ホーム
-            </button>
-            <button className="btn-retry-terracotta" onClick={handleStartCountdown}>
-              <img src={retryIcon} alt="Retry" className="button-icon-white" />
-              再トライ
-            </button>
-          </div>
-        </div>
+        <ResultView
+          totalDistance={totalDistance}
+          diffDistance={diffDistance}
+          onGoHome={() => setCurrentView('home')}
+          onRetry={handleStartCountdown}
+        />
       )}
 
       {/* カウントダウンオーバーレイ */}
-      {countdown !== null && (
-        <div className="countdown-overlay">
-          {countdown === 3 && <img src={img3} alt="3" className="countdown-img" />}
-          {countdown === 2 && <img src={img2} alt="2" className="countdown-img" />}
-          {countdown === 1 && <img src={img1} alt="1" className="countdown-img" />}
-          {countdown === 0 && <div className="start-text">START!</div>}
-        </div>
-      )}
+      <CountdownOverlay countdown={countdown} />
     </div>
   );
 }
