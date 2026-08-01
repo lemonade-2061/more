@@ -1,4 +1,4 @@
-/* 全体背景とセンタリング */
+/* --- ベースとレイアウト --- */
 body {
   margin: 0;
   padding: 0;
@@ -10,20 +10,22 @@ body {
   min-height: 100vh;
 }
 
-/* スマホ風コンテナ */
+/* スマホ風カードフレーム */
 .app-screen {
+  position: relative;
   width: 100%;
   max-width: 360px;
-  min-height: 500px;
+  min-height: 520px;
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 30px 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .view {
@@ -33,9 +35,9 @@ body {
   width: 100%;
 }
 
-/* ロゴ画像コンテナとサイズ調整 */
+/* --- ホーム画面スタイル --- */
 .ribbon-container {
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -43,33 +45,36 @@ body {
 }
 
 .logo-img {
-  width: 260px; /* ロゴの大きさはここでお好みで調整できます */
+  width: 240px;
   height: auto;
   display: block;
 }
 
-/* 名前入力ボックス */
+.ribbon {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+}
+
 .input-box {
   width: 85%;
   padding: 12px;
   font-size: 16px;
   font-weight: bold;
   text-align: center;
-  background-color: #dcdcdc;
+  background-color: #e0e0e0;
   border: none;
   border-radius: 10px;
   margin-bottom: 20px;
   outline: none;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
 }
 
 .input-box::placeholder {
-  color: #555;
+  color: #666;
 }
 
-/* セットアップへボタン（ネオンイエロー） */
-.btn-setup {
+.btn-setup, .btn-start {
   width: 85%;
   padding: 12px;
   font-size: 16px;
@@ -79,20 +84,35 @@ body {
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.1s, background-color 0.2s;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s;
 }
 
-.btn-setup:active {
-  transform: scale(0.98);
-  background-color: #b3e600;
+.btn-setup:active, .btn-start:active {
+  transform: scale(0.97);
 }
 
-/* セットアップ画面用スタイル */
+.button-group {
+  display: flex;
+  gap: 12px;
+  width: 85%;
+  margin-top: 20px;
+}
+
+.btn-back {
+  flex: 1;
+  background-color: #e0e0e0;
+  border: none;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
 .greeting-text {
-  font-size: 18px;
-  color: #555;
-  margin-bottom: 20px;
+  font-size: 16px;
+  color: #444;
 }
 
 .greeting-text span {
@@ -104,13 +124,140 @@ body {
   color: #666;
   font-size: 14px;
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
-.btn-back {
-  background-color: #eee;
+/* --- カウント計測画面 (画像再現スタイル) --- */
+.count-page-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+/* オレンジ看板 */
+.distance-orange-card {
+  background-color: #fca229;
+  border-radius: 28px;
+  padding: 20px 16px;
+  color: #000000;
+  font-size: 48px;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.1;
+  letter-spacing: 2px;
+}
+
+.distance-orange-card .distance-num {
+  font-size: 60px;
+  font-weight: 900;
+}
+
+/* キャラクター＆吹き出し */
+.chat-section {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.char-avatar {
+  width: 60px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.speech-bubble {
+  position: relative;
+  background-color: #dcdcdc;
+  border-radius: 18px;
+  padding: 12px 20px;
+  font-size: 17px;
+  font-weight: bold;
+  color: #000000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  bottom: 12px;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 12px solid #dcdcdc;
+}
+
+/* 「もう無理」ボタン */
+.bottom-button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn-giveup-red {
+  background-color: #ff3b30;
+  color: #ffffff;
   border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
+  box-shadow: 0 3px 8px rgba(255, 59, 48, 0.3);
+  transition: transform 0.1s ease;
+}
+
+.btn-giveup-red:active {
+  transform: scale(0.96);
+}
+
+.hand-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* --- カウントダウン表示 --- */
+.countdown-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.92);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  border-radius: 16px;
+}
+
+.countdown-img {
+  width: 120px;
+  height: auto;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.start-text {
+  font-size: 48px;
+  font-weight: 900;
+  color: #ccff00;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  animation: popIn 0.3s ease;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
