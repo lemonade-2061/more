@@ -34,6 +34,23 @@ export function App() {
   const [message, setMessage] = useState<string>('がんばろう！');
   const sessionStartRef = useRef<Date | null>(null);
   const cheerBusyRef = useRef(false);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+
+  // 計測中に画面が自動ロックされると加速度センサーごと止まるので、スリープを抑止する
+  const acquireWakeLock = async () => {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLockRef.current = await navigator.wakeLock.request('screen');
+      }
+    } catch (err) {
+      // 非対応ブラウザや省電力モードでは失敗するが、計測自体は続行できる
+      console.warn('wake lock failed:', err);
+    }
+  };
+  const releaseWakeLock = () => {
+    void wakeLockRef.current?.release();
+    wakeLockRef.current = null;
+  };
 
   // リザルトデータ
   const [totalDistance, setTotalDistance] = useState<string>('0m');
@@ -73,6 +90,7 @@ export function App() {
         sessionStartRef.current = new Date();
         detector.reset();
         void detector.start();
+        void acquireWakeLock();
         setMessage('がんばろう！');
         setCurrentView('count');
       }, 800);
@@ -83,6 +101,7 @@ export function App() {
   // 計測終了の共通処理: 検出を止めて距離を集計しリザルトへ
   const finishSession = (achieved: boolean) => {
     detector.stop();
+    releaseWakeLock();
     const dist = Math.round(detector.stepCount * STRIDE_M);
     setTotalDistance(`${dist}m`);
     const last = Number(localStorage.getItem('last-distance-m') ?? '0');
@@ -104,6 +123,18 @@ export function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detector.stepCount, currentView, goalSteps]);
+
+  // Wake Lock は一度画面が裏に回ると自動解除されるので、計測中に表へ戻ったら取り直す
+  useEffect(() => {
+    if (currentView !== 'count') return;
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void acquireWakeLock();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, [currentView]);
 
   // 計測中は定期的に応援セリフを取得して表示+読み上げ
   useEffect(() => {
