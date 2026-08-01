@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MORE - 運動アプリ</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-screen">
+    <!-- 画面1: 名前入力画面 -->
+    <div id="home-view" class="view">
+      <!-- リボンロゴ -->
+      <div class="ribbon-container">
+        <div class="ribbon">MORE</div>
+      </div>
+
+      <!-- 入力欄 -->
+      <input type="text" id="username" class="input-box" placeholder="名前を入力">
+
+      <!-- セットアップへ移動ボタン -->
+      <button id="btn-setup-trigger" class="btn-setup">セットアップへ</button>
+    </div>
+
+    <!-- 画面2: セットアップ画面 -->
+    <div id="setup-view" class="view hidden">
+      <h2>セットアップ</h2>
+      <p class="greeting-text"><span id="user-display-name"></span> さん、ようこそ！</p>
+      <p class="description-text">ここで運動目標や初期設定を行ないます。</p>
+      <button id="btn-back-trigger" class="btn-back">戻る</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
