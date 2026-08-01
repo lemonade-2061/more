@@ -1,31 +1,31 @@
 package handler
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"strconv"
+	"time"
 
-	// go.mod に記載のモジュール名に合わせて変更してください（例: backend/internal/voicevox）
+	"hackathon/backend/internal/store"
 	"hackathon/backend/internal/voicevox"
 )
 
-// VoicevoxHandler VOICEVOX用のHTTPハンドラ構造体
 type VoicevoxHandler struct {
-	vvClient voicevox.Client
+	vvClient   voicevox.Client
+	audioStore *store.S3AudioStore // ★ 追加
 }
 
-// NewVoicevoxHandler ハンドラの初期化
-func NewVoicevoxHandler(vvClient voicevox.Client) *VoicevoxHandler {
+func NewVoicevoxHandler(vvClient voicevox.Client, audioStore *store.S3AudioStore) *VoicevoxHandler { // ★ 引数追加
 	return &VoicevoxHandler{
-		vvClient: vvClient,
+		vvClient:   vvClient,
+		audioStore: audioStore, // ★ 追加
 	}
 }
 
-// HandleSynthesize /speech へのリクエストを処理して WAV を返す
-// リクエスト例: GET /speech?text=こんにちは&speaker=3
 func (h *VoicevoxHandler) HandleSynthesize(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// 1. クエリパラメータから text と speaker を取得
 	text := r.URL.Query().Get("text")
 	if text == "" {
 		http.Error(w, "text parameter is required", http.StatusBadRequest)
@@ -33,7 +33,7 @@ func (h *VoicevoxHandler) HandleSynthesize(w http.ResponseWriter, r *http.Reques
 	}
 
 	speakerStr := r.URL.Query().Get("speaker")
-	speakerID := 3 // 指定がない場合のデフォルト値（3: ずんだもん ノーマル）
+	speakerID := 3
 	if speakerStr != "" {
 		id, err := strconv.Atoi(speakerStr)
 		if err == nil {
@@ -41,14 +41,24 @@ func (h *VoicevoxHandler) HandleSynthesize(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	// 2. VOICEVOX クライアントを使って音声合成を実行
 	wavBytes, err := h.vvClient.Synthesize(ctx, text, speakerID)
 	if err != nil {
 		http.Error(w, "failed to synthesize speech: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// 3. ヘッダーに音声データ(WAV)であることを設定してクライアントに返す
+	// --------------------------------------------------
+	// ★ S3への保存処理を追加
+	// --------------------------------------------------
+	if h.audioStore != nil {
+		filename := fmt.Sprintf("speech_%d.wav", time.Now().Unix())
+		if err := h.audioStore.Save(ctx, filename, wavBytes); err != nil {
+			log.Printf("S3保存エラー: %v", err)
+		} else {
+			log.Printf("S3保存成功: %s (URL: %s)", filename, h.audioStore.URL(filename))
+		}
+	}
+
 	w.Header().Set("Content-Type", "audio/wav")
 	w.Header().Set("Content-Length", strconv.Itoa(len(wavBytes)))
 	w.WriteHeader(http.StatusOK)
