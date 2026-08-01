@@ -33,46 +33,24 @@ body {
   width: 100%;
 }
 
-/* MORE リボンロゴ */
+/* ロゴ画像コンテナとサイズ調整 */
 .ribbon-container {
-  position: relative;
-  margin-bottom: 50px;
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
-.ribbon {
-  position: relative;
-  background: #e0b020;
-  color: #000;
-  font-size: 32px;
-  font-weight: 900;
-  letter-spacing: 2px;
-  padding: 10px 45px;
-  text-align: center;
-  border-radius: 2px;
-}
-
-.ribbon::before,
-.ribbon::after {
-  content: '';
-  position: absolute;
-  top: 5px;
-  border: 25px solid #e0b020;
-  z-index: -1;
-}
-
-.ribbon::before {
-  left: -35px;
-  border-left-color: transparent;
-}
-
-.ribbon::after {
-  right: -35px;
-  border-right-color: transparent;
+.logo-img {
+  width: 260px; /* ロゴの大きさはここでお好みで調整できます */
+  height: auto;
+  display: block;
 }
 
 /* 名前入力ボックス */
 .input-box {
-  width: 80%;
+  width: 85%;
   padding: 12px;
   font-size: 16px;
   font-weight: bold;
@@ -87,12 +65,12 @@ body {
 }
 
 .input-box::placeholder {
-  color: #333;
+  color: #555;
 }
 
 /* セットアップへボタン（ネオンイエロー） */
 .btn-setup {
-  width: 80%;
+  width: 85%;
   padding: 12px;
   font-size: 16px;
   font-weight: bold;
