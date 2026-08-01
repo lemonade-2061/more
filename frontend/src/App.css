@@ -261,3 +261,118 @@ body {
     opacity: 1;
   }
 }
+
+/* --- リザルト画面 (画像完全一致スタイル) --- */
+.result-page-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+/* メインのオレンジイエローボード */
+.result-card-yellow {
+  background-color: #f2b84b;
+  border-radius: 28px;
+  padding: 24px 16px;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.result-card-yellow .result-label {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.result-card-yellow .result-value {
+  font-size: 72px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* 左側に角（ツノ）が付いたグレーの吹き出し */
+.result-speech-bubble {
+  position: relative;
+  background-color: #b9c1cb;
+  border-radius: 20px;
+  padding: 16px 24px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.result-speech-bubble::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  bottom: 20px;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 12px solid #b9c1cb;
+}
+
+.result-speech-bubble .bubble-text {
+  font-size: 22px;
+  font-weight: bold;
+  color: #000000;
+  line-height: 1.4;
+}
+
+/* 下部ボタン配置エリア */
+.result-action-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* ティールグリーンのホームボタン */
+.btn-home-teal {
+  background-color: #27858c;
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 24px;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+/* テラコッタオレンジの再トライボタン */
+.btn-retry-terracotta {
+  background-color: #c85e37;
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 24px;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.button-icon-white {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  /* 画像アイコンを白くくっきり反転させるフィルター */
+  filter: brightness(0) invert(1);
+}
+
+.btn-home-teal:active,
+.btn-retry-terracotta:active {
+  transform: scale(0.95);
+}

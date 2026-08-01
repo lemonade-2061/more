@@ -2,29 +2,33 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import StepDebug from './pages/StepDebug';
 
-// --- 画像ファイルのインポート ---
+// 画像の読み込み
 import logoImage from './assets/Vector_2.png';
 import img1 from './assets/1.png';
 import img2 from './assets/2.png';
 import img3 from './assets/3.png';
 import charIcon from './assets/Vector (2).png';  // キャラクター顔画像
-import handIcon from './assets/Rectangle 33.png'; // 手のアイコン画像
+import handIcon from './assets/Rectangle 33.png'; // 手のアイコン
+import homeIcon from './assets/Rectangle 34.png'; // 家アイコン（ホーム）
+import retryIcon from './assets/Ellipse 16.png';  // 矢印アイコン（再トライ）
 
 export function App() {
-  // ユーザー名
   const [username, setUsername] = useState<string>('');
-
-  // 画面表示ステート ('home' | 'setup' | 'setting' | 'count')
-  const [currentView, setCurrentView] = useState<'home' | 'setup' | 'setting' | 'count'>('home');
   
-  // カウントダウン用の状態 (3, 2, 1, 0, null)
+  // 画面表示ステート ('home' | 'setup' | 'setting' | 'count' | 'result')
+  const [currentView, setCurrentView] = useState<'home' | 'setup' | 'setting' | 'count' | 'result'>('home');
+  
+  // カウントダウン用の状態
   const [countdown, setCountdown] = useState<number | null>(null);
 
-  // 計測画面のデータ
+  // 計測データ
   const [distance, setDistance] = useState<number>(100);
   const [message, setMessage] = useState<string>('もうちょっとだ！');
 
-  // ホーム画面からセットアップへの移動
+  // リザルトデータ
+  const [totalDistance, setTotalDistance] = useState<string>('2km');
+  const [diffDistance, setDiffDistance] = useState<string>('+100m');
+
   const handleGoToSetup = () => {
     if (username.trim() === '') {
       alert('名前を入力してください！');
@@ -33,17 +37,15 @@ export function App() {
     setCurrentView('setup');
   };
 
-  // ホームへ戻る処理
   const handleGoBack = () => {
     setCurrentView('home');
   };
 
-  // スタートボタン押下時の処理（カウントダウン開始）
   const handleStartCountdown = () => {
     setCountdown(3);
   };
 
-  // 3 -> 2 -> 1 -> START のカウントダウン処理
+  // カウントダウン処理
   useEffect(() => {
     if (countdown === null) return;
 
@@ -55,27 +57,25 @@ export function App() {
     } else if (countdown === 0) {
       const timer = setTimeout(() => {
         setCountdown(null);
-        setCurrentView('count'); // カウントダウン終了後に計測画面へ
+        setCurrentView('count');
       }, 800);
       return () => clearTimeout(timer);
     }
   }, [countdown]);
 
-  // ギブアップ処理
+  // ギブアップ処理でリザルト画面へ
   const handleGiveUp = () => {
-    alert('無理せず少し休憩しましょう！お疲れ様でした！');
+    setCurrentView('result');
   };
 
-  // ?debug=1 をURLに付けたときだけ歩数検出の調整画面を表示
+  // デバッグ判定
   if (new URLSearchParams(window.location.search).has('debug')) {
     return <StepDebug />;
   }
 
   return (
     <div className="app-screen">
-      {/* --------------------------------------------------
-          画面1: 名前入力画面 (home)
-         -------------------------------------------------- */}
+      {/* 画面1: ホーム */}
       {currentView === 'home' && (
         <div className="view">
           <div className="ribbon-container">
@@ -100,9 +100,7 @@ export function App() {
         </div>
       )}
 
-      {/* --------------------------------------------------
-          画面2: セットアップ事前画面 (setup)
-         -------------------------------------------------- */}
+      {/* 画面2: セットアップ事前 */}
       {currentView === 'setup' && (
         <div className="view">
           <h2>セットアップ</h2>
@@ -120,9 +118,7 @@ export function App() {
         </div>
       )}
 
-      {/* --------------------------------------------------
-          画面3: 項目設定画面 (setting)
-         -------------------------------------------------- */}
+      {/* 画面3: 項目設定 */}
       {currentView === 'setting' && (
         <div className="view">
           <h2>項目設定画面</h2>
@@ -139,17 +135,13 @@ export function App() {
         </div>
       )}
 
-      {/* --------------------------------------------------
-          画面4: カウント計測メイン画面 (count)
-         -------------------------------------------------- */}
+      {/* 画面4: カウント計測 */}
       {currentView === 'count' && (
         <div className="count-page-container">
-          {/* オレンジ色の残り距離ボード */}
           <div className="distance-orange-card">
             後<span className="distance-num">{distance}</span>m
           </div>
 
-          {/* キャラクターアイコンと吹き出し */}
           <div className="chat-section">
             <img src={charIcon} alt="Character" className="char-avatar" />
             <div className="speech-bubble">
@@ -157,7 +149,6 @@ export function App() {
             </div>
           </div>
 
-          {/* 右下の「もう無理」ボタン */}
           <div className="bottom-button-wrapper">
             <button className="btn-giveup-red" onClick={handleGiveUp}>
               もう無理
@@ -168,8 +159,40 @@ export function App() {
       )}
 
       {/* --------------------------------------------------
-          ★ 全画面共通: カウントダウンオーバーレイ表示
+          画面5: リザルト画面 (画像デザイン完全再現)
          -------------------------------------------------- */}
+      {currentView === 'result' && (
+        <div className="result-page-container">
+          {/* オレンジイエローの成果ボード */}
+          <div className="result-card-yellow">
+            <span className="result-label">今回は</span>
+            <span className="result-value">{totalDistance}!</span>
+          </div>
+
+          {/* キャラクター ＋ 左三角つき吹き出し */}
+          <div className="chat-section">
+            <img src={charIcon} alt="Character" className="char-avatar" />
+            <div className="result-speech-bubble">
+              <div className="bubble-text">がんばった！</div>
+              <div className="bubble-text">前回より {diffDistance}!</div>
+            </div>
+          </div>
+
+          {/* ホーム＆再トライボタン */}
+          <div className="result-action-group">
+            <button className="btn-home-teal" onClick={() => setCurrentView('home')}>
+              <img src={homeIcon} alt="Home" className="button-icon-white" />
+              ホーム
+            </button>
+            <button className="btn-retry-terracotta" onClick={handleStartCountdown}>
+              <img src={retryIcon} alt="Retry" className="button-icon-white" />
+              再トライ
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* カウントダウンオーバーレイ */}
       {countdown !== null && (
         <div className="countdown-overlay">
           {countdown === 3 && <img src={img3} alt="3" className="countdown-img" />}
