@@ -7,13 +7,16 @@ import char3Icon from '../assets/robot.png';
 export const STRIDE_M = 0.7;
 // 歩行ペースの目安 (歩/分)。時間目標の換算用
 const STEPS_PER_MIN = 100;
+// カロリー換算用の想定体重 (kg)。消費カロリー ≒ 体重 × 距離(km) × 1.05 の近似式を使う
+export const WEIGHT_KG = 60;
 
-type GoalType = 'steps' | 'distance' | 'time';
+type GoalType = 'steps' | 'distance' | 'time' | 'calorie';
 
 const GOAL_LABELS: Record<GoalType, string> = {
   steps: '目標歩数',
   distance: '目標距離（km）',
   time: '目標時間（分）',
+  calorie: '消費カロリー（kcal）',
 };
 
 // 応援キャラ (VOICEVOX のスタイルID)。増やしたら README のクレジット表記も追加すること
@@ -39,6 +42,15 @@ export default function SettingView({
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [goalType, setGoalType] = useState<GoalType>('steps');
   const [goalValue, setGoalValue] = useState<string>('30');
+  // 体重 (kg)。カロリー換算に使う。入力したら次回以降も覚えておく
+  const [weight, setWeight] = useState<string>(
+    () => localStorage.getItem('weight-kg') ?? String(WEIGHT_KG),
+  );
+
+  const handleWeightChange = (value: string) => {
+    setWeight(value);
+    localStorage.setItem('weight-kg', value);
+  };
 
   // どの目標タイプでも内部的には歩数に換算して扱う
   const toGoalSteps = (): number => {
@@ -51,6 +63,13 @@ export default function SettingView({
         return Math.round((v * 1000) / STRIDE_M);
       case 'time':
         return Math.round(v * STEPS_PER_MIN);
+      case 'calorie': {
+        // kcal → 距離(km) → 歩数。消費カロリー ≒ 体重 × 距離(km) × 1.05
+        const w = Number(weight);
+        const weightKg = Number.isFinite(w) && w > 0 ? w : WEIGHT_KG;
+        const km = v / (weightKg * 1.05);
+        return Math.round((km * 1000) / STRIDE_M);
+      }
     }
   };
 
@@ -105,6 +124,21 @@ export default function SettingView({
         onChange={(e) => setGoalValue(e.target.value)}
         min={1}
       />
+
+      {/* カロリー目標のときだけ体重入力を出す (換算に使う) */}
+      {goalType === 'calorie' && (
+        <label className="description-text" style={{ display: 'block' }}>
+          体重 (kg)
+          <input
+            type="number"
+            className="input-box"
+            value={weight}
+            onChange={(e) => handleWeightChange(e.target.value)}
+            min={20}
+            max={200}
+          />
+        </label>
+      )}
 
       {/* 応援キャラ選択 */}
       <p className="description-text">応援してくれるキャラを選ぼう</p>
