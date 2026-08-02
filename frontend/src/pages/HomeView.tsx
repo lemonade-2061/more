@@ -1,4 +1,4 @@
-    import logoImage from '../assets/Vector_2.png';
+    import logoImage from '../assets/title.png';
 
     interface HomeViewProps {
     username: string;

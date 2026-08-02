@@ -1,15 +1,25 @@
-    import charIcon from '../assets/Vector (2).png';
-    import homeIcon from '../assets/Rectangle 34.png';
-    import retryIcon from '../assets/Ellipse 16.png';
+    import { SPEAKERS } from './SettingView';
+    import homeIcon from '../assets/home.png';
+    import retryIcon from '../assets/retry.png';
 
     interface ResultViewProps {
     totalDistance: string;
     diffDistance: string;
     onGoHome: () => void;
     onRetry: () => void;
+    speakerId: number;
     }
 
-    export default function ResultView({ totalDistance, diffDistance, onGoHome, onRetry }: ResultViewProps) {
+    export default function ResultView({ 
+    totalDistance, 
+    diffDistance, 
+    onGoHome, 
+    onRetry, 
+    speakerId 
+    }: ResultViewProps) {
+    // 選択されたキャラのデータを取得（見つからなければ先頭のキャラ）
+    const currentSpeaker = SPEAKERS.find((s) => s.id === speakerId) || SPEAKERS[0]; 
+
     return (
         <div className="result-page-container">
         <div className="result-card-yellow">
@@ -18,7 +28,8 @@
         </div>
 
         <div className="chat-section">
-            <img src={charIcon} alt="Character" className="char-avatar" />
+            {/* 動的に選択されたキャラの画像・アバタ―名を表示 */}
+            <img src={currentSpeaker.icon} alt={currentSpeaker.name} className="char-avatar" />
             <div className="result-speech-bubble">
             <div className="bubble-text">がんばった！</div>
             <div className="bubble-text">前回より {diffDistance}!</div>
@@ -36,5 +47,5 @@
             </button>
         </div>
         </div>
-    );
+    );  
     }
