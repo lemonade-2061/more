@@ -260,7 +260,7 @@ export function App() {
               totalDistance={totalDistance}
               diffDistance={diffDistance}
               onGoHome={() => setCurrentView('home')}
-              onRetry={() => handleStartCountdown(goalSteps)}
+              onRetry={() => setCurrentView('setting')} /* ★ 再トライで設定画面('setting')に遷移させる */
               speakerId={speakerId}
             />
             <RouteMap points={route.points} />

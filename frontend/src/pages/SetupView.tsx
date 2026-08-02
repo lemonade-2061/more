@@ -10,7 +10,7 @@
         <div className="set-up">  
         <h2>セットアップ</h2>
         <p className="greeting-text"><span>{username}</span> さん、ようこそ！</p>
-        <p className="description-text">ここで運動目標や初期設定を行ないます。</p>
+        <p className="description-text">運動目標や初期設定を行ないます。</p>
         
         <div className="button-group">
             <button className="btn-back" onClick={onGoBack}>
