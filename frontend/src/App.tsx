@@ -11,6 +11,8 @@ import ResultView from './pages/ResultView';
 import CountdownOverlay from './pages/CountdownOverlay';
 
 import { useStepDetector } from './steps/useStepDetector';
+import { useRouteTracker } from './steps/useRouteTracker';
+import RouteMap from './map/RouteMap';
 import { getUserId } from './steps/userId';
 import { fetchCheer } from './api/cheer';
 import { voicePlayer } from './audio/player';
@@ -30,6 +32,7 @@ export function App() {
   // 計測まわり
   const [userId] = useState(getUserId);
   const detector = useStepDetector(userId);
+  const route = useRouteTracker(); // GPS 経路 (取れたらリザルトに地図を出すおまけ機能)
   const [goalSteps, setGoalSteps] = useState<number>(30);
   const [speakerId, setSpeakerId] = useState<number>(3); // 応援キャラ (既定: ずんだもん)
   const [message, setMessage] = useState<string>('がんばろう！');
@@ -96,6 +99,7 @@ export function App() {
         sessionStartRef.current = new Date();
         detector.reset();
         void detector.start();
+        route.start();
         void acquireWakeLock();
         setMessage('がんばろう！');
         setCurrentView('count');
@@ -107,6 +111,7 @@ export function App() {
   // 計測終了の共通処理: 検出を止めて距離を集計しリザルトへ
   const finishSession = (achieved: boolean) => {
     detector.stop();
+    route.stop();
     releaseWakeLock();
     const dist = Math.round(detector.stepCount * STRIDE_M);
     setTotalDistance(`${dist}m`);
@@ -221,14 +226,17 @@ export function App() {
         />
       )}
 
-      {/* 画面5: リザルト画面 */}
+      {/* 画面5: リザルト画面 (GPSが取れていれば下にルート地図も出す) */}
       {currentView === 'result' && (
-        <ResultView
-          totalDistance={totalDistance}
-          diffDistance={diffDistance}
-          onGoHome={() => setCurrentView('home')}
-          onRetry={() => handleStartCountdown(goalSteps)}
-        />
+        <>
+          <ResultView
+            totalDistance={totalDistance}
+            diffDistance={diffDistance}
+            onGoHome={() => setCurrentView('home')}
+            onRetry={() => handleStartCountdown(goalSteps)}
+          />
+          <RouteMap points={route.points} />
+        </>
       )}
 
       {/* カウントダウンオーバーレイ */}
