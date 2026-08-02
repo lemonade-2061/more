@@ -23,6 +23,9 @@ services:
     environment:
       MINIO_ROOT_USER: test
       MINIO_ROOT_PASSWORD: testtest123
+    volumes:
+      # 事前生成した音声を down しても残すため named volume にする
+      - minio-data:/data
 
   voicevox:
     image: voicevox/voicevox_engine:cpu-ubuntu20.04-latest
@@ -63,3 +66,4 @@ services:
 
 volumes:
   db-data:
+  minio-data:
