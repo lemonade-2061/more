@@ -74,14 +74,14 @@ export function App() {
   const handleStartCountdown = async (goal: number) => {
     setGoalSteps(goal);
     voicePlayer.init();
-    // iOS Safari は位置情報の許可もタップ操作の文脈でしか出せないので、
-    // await より前 (タップ直後) に GPS 記録を開始する
-    route.start();
+    // 許可ダイアログは1つずつ順番に出す。同時にリクエストすると iOS が
+    // 片方 (位置情報) を黙って握りつぶすことがある
     if (!(await detector.requestPermission())) {
-      route.stop();
       alert('モーションセンサーの許可が必要です。設定を確認してください。');
       return;
     }
+    // モーションの決着後に GPS 開始 → ここで位置情報のダイアログが出る
+    route.start();
     setCountdown(3);
   };
 
