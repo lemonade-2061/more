@@ -84,8 +84,10 @@ export default function SettingView({
 
   return (
     <div className="view">
-      <h2>項目設定画面</h2>
-      <p className="description-text">運動目標を選択してスタートしましょう。</p>
+    <h2>
+    運動目標を選択して<br />
+    スタートしよう！
+  </h2>
 
       {/* ドロップダウンメニュー */}
       <div className="dropdown-container">
@@ -141,7 +143,7 @@ export default function SettingView({
       )}
 
       {/* 応援キャラ選択 */}
-      <p className="description-text">応援してくれるキャラを選ぼう</p>
+      <h3 className="description-text">応援してくれるキャラを選ぼう</h3>
       <div className="button-group" style={{ gap: '10px',justifyContent: 'center' }}>
         {SPEAKERS.map((s) => (
           <button

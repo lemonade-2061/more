@@ -7,6 +7,7 @@
     export default function SetupView({ username, onGoBack, onGoNext }: SetupViewProps) {
     return (
         <div className="view">
+        <div className="set-up">  
         <h2>セットアップ</h2>
         <p className="greeting-text"><span>{username}</span> さん、ようこそ！</p>
         <p className="description-text">ここで運動目標や初期設定を行ないます。</p>
@@ -20,5 +21,6 @@
             </button>
         </div>
         </div>
+        </div>
     );
-    }
+    } 
