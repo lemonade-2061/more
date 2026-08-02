@@ -13,12 +13,26 @@ const GOAL_LABELS: Record<GoalType, string> = {
   time: '目標時間（分）',
 };
 
+// 応援キャラ (VOICEVOX のスタイルID)。増やしたら README のクレジット表記も追加すること
+export const SPEAKERS = [
+  { id: 3, name: 'ずんだもん' },
+  { id: 2, name: '四国めたん' },
+  { id: 8, name: '春日部つむぎ' },
+] as const;
+
 interface SettingViewProps {
   onGoBack: () => void;
   onStartCountdown: (goalSteps: number) => void;
+  speakerId: number;
+  onSelectSpeaker: (id: number) => void;
 }
 
-export default function SettingView({ onGoBack, onStartCountdown }: SettingViewProps) {
+export default function SettingView({
+  onGoBack,
+  onStartCountdown,
+  speakerId,
+  onSelectSpeaker,
+}: SettingViewProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [goalType, setGoalType] = useState<GoalType>('steps');
   const [goalValue, setGoalValue] = useState<string>('30');
@@ -88,6 +102,26 @@ export default function SettingView({ onGoBack, onStartCountdown }: SettingViewP
         onChange={(e) => setGoalValue(e.target.value)}
         min={1}
       />
+
+      {/* 応援キャラ選択 */}
+      <p className="description-text">応援してくれるキャラを選ぼう</p>
+      <div className="button-group">
+        {SPEAKERS.map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            className="dropdown-item"
+            style={{
+              border: s.id === speakerId ? '3px solid #ff6b00' : '3px solid transparent',
+              borderRadius: 12,
+              fontWeight: s.id === speakerId ? 'bold' : 'normal',
+            }}
+            onClick={() => onSelectSpeaker(s.id)}
+          >
+            {s.name}
+          </button>
+        ))}
+      </div>
 
       {/* 操作ボタンエリア */}
       <div className="button-group">

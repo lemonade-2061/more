@@ -31,6 +31,7 @@ export function App() {
   const [userId] = useState(getUserId);
   const detector = useStepDetector(userId);
   const [goalSteps, setGoalSteps] = useState<number>(30);
+  const [speakerId, setSpeakerId] = useState<number>(3); // 応援キャラ (既定: ずんだもん)
   const [message, setMessage] = useState<string>('がんばろう！');
   const sessionStartRef = useRef<Date | null>(null);
   const cheerBusyRef = useRef(false);
@@ -116,7 +117,9 @@ export function App() {
     setCurrentView('result');
     if (achieved) {
       const text = 'おめでとう！目標達成だよ！本当によくがんばったね！';
-      void voicePlayer.play(`/speech?${new URLSearchParams({ text })}`);
+      void voicePlayer.play(
+        `/speech?${new URLSearchParams({ text, speaker: String(speakerId) })}`,
+      );
     }
   };
 
@@ -150,7 +153,9 @@ export function App() {
       try {
         const cheer = await fetchCheer(userId, goalSteps, sessionStartRef.current);
         setMessage(cheer.text);
-        await voicePlayer.play(`/speech?${new URLSearchParams({ text: cheer.text })}`);
+        await voicePlayer.play(
+          `/speech?${new URLSearchParams({ text: cheer.text, speaker: String(speakerId) })}`,
+        );
       } catch (err) {
         console.error('cheer error:', err);
       } finally {
@@ -158,7 +163,7 @@ export function App() {
       }
     }, CHEER_INTERVAL_MS);
     return () => clearInterval(id);
-  }, [currentView, userId, goalSteps]);
+  }, [currentView, userId, goalSteps, speakerId]);
 
   // ギブアップ処理でリザルト画面へ
   const handleGiveUp = () => {
@@ -202,6 +207,8 @@ export function App() {
         <SettingView
           onGoBack={() => setCurrentView('setup')}
           onStartCountdown={handleStartCountdown}
+          speakerId={speakerId}
+          onSelectSpeaker={setSpeakerId}
         />
       )}
 
