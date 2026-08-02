@@ -38,8 +38,17 @@ export default function RouteMap({ points }: RouteMapProps) {
     };
   }, [points]);
 
+  //記録点が2つ以下のとき地図を表示せず記録できなかったことを表示
   if (points.length < 2) {
-    return null; // GPS が取れなかった (屋内など) 時は何も出さない
+    return(
+      <div style={{ width: '100%', maxWidth: 440, margin: '16px auto 0' }}>
+        <p style={{ margin: '0 0 4px', fontWeight: 'bold' }}>今回のルート</p>
+        <p style={{ color: '#888', fontSize: 14 }}>
+          GPSの記録がありませんでした (記録点: {points.length}個)。
+          屋内や短時間の計測では取得できないことがあります。
+        </p>
+      </div>
+    ); 
   }
 
   return (
