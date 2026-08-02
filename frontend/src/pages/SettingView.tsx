@@ -118,7 +118,7 @@ export default function SettingView({
               border: s.id === speakerId ? '3px solid #ff6b00' : '3px solid #ccc',
               borderRadius: 16,
               padding: '10px',
-              backgourndColor: s.id === speakerId ? '#fff3eb' : '#f9f9f9',
+              backgroundColor: s.id === speakerId ? '#fff3eb' : '#f9f9f9',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
