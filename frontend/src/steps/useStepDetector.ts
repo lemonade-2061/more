@@ -123,17 +123,32 @@ export function useStepDetector(userId: string) {
     }
   }, [userId]);
 
-  const start = useCallback(async () => {
-    // iOS Safari は明示的な許可が必要 (Android には requestPermission が存在しない)
+  // iOS Safari はユーザーのタップ操作の中でしか許可を出せないので、
+  // ボタンの onClick から直接呼ぶこと (タイマー経由だと自動拒否される)
+  const requestPermission = useCallback(async (): Promise<boolean> => {
     const dme = DeviceMotionEvent as unknown as {
       requestPermission?: () => Promise<string>;
     };
-    if (typeof dme.requestPermission === "function") {
+    if (typeof dme.requestPermission !== "function") {
+      return true; // Android などは許可不要
+    }
+    try {
       const result = await dme.requestPermission();
       if (result !== "granted") {
         setError("モーションセンサーの利用が許可されませんでした");
-        return;
+        return false;
       }
+      return true;
+    } catch {
+      setError("モーションセンサーの許可要求に失敗しました");
+      return false;
+    }
+  }, []);
+
+  const start = useCallback(async () => {
+    // 直接タップから呼ばれた場合はここで許可を取る (StepDebug の計測開始ボタン用)
+    if (!(await requestPermission())) {
+      return;
     }
     window.addEventListener("devicemotion", handleMotion);
     warmupUntilRef.current = Date.now() + WARMUP_MS;
@@ -141,7 +156,7 @@ export function useStepDetector(userId: string) {
     setTimeout(() => setInWarmup(false), WARMUP_MS);
     setDetecting(true);
     setError(null);
-  }, [handleMotion]);
+  }, [handleMotion, requestPermission]);
 
   const stop = useCallback(() => {
     window.removeEventListener("devicemotion", handleMotion);
@@ -186,6 +201,7 @@ export function useStepDetector(userId: string) {
     start,
     stop,
     flush,
+    requestPermission, // iOS 用: タップハンドラから直接呼んで事前に許可を取る
     // 画面のカウンタと未送信バッファを0に戻す (サーバー側は消さない)
     reset: useCallback(() => {
       pendingRef.current = [];

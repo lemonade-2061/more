@@ -68,10 +68,15 @@ export function App() {
     setCurrentView('home');
   };
 
-  const handleStartCountdown = (goal: number) => {
+  const handleStartCountdown = async (goal: number) => {
     setGoalSteps(goal);
     // ユーザー操作(タップ)の文脈で音声をアンロックしておく (スマホの自動再生対策)
     voicePlayer.init();
+    // 同じくタップの文脈でモーションセンサーの許可を取る (iOS はここでしか出せない)
+    if (!(await detector.requestPermission())) {
+      alert('モーションセンサーの許可が必要です。設定を確認してください。');
+      return;
+    }
     setCountdown(3);
   };
 
