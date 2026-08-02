@@ -1,11 +1,7 @@
-/* ==========================================================================
-   1. 全体共通スタイル (Global / Layout / Common)
-   ========================================================================== */
-
 /* 全体の基本配置 */
 .app-screen {
   width: 100%;
-  max-width: 480px; /* スマホ表示向けの最大幅 */
+  max-width: 480px;
   min-height: 100vh;
   margin: 0 auto;
   padding: 20px;
@@ -29,70 +25,14 @@
   text-align: center;
 }
 
-/* 共通テキスト・タイトル */
+/* タイトル・テキスト */
 h2 {
   font-size: 1.8rem;
   color: #333;
   margin-bottom: 12px;
 }
 
-.greeting-text {
-  font-size: 1.2rem;
-  color: #444;
-  margin-bottom: 8px;
-}
-
-.greeting-text span {
-  font-weight: bold;
-  color: #007bff;
-}
-
-.description-text {
-  font-size: 0.95rem;
-  color: #666;
-  margin-bottom: 24px;
-}
-
-/* 共通ボタングループ */
-.button-group {
-  display: flex;
-  gap: 16px;
-  width: 100%;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-/* 共通ボタン基本形 */
-.btn-back,
-.btn-setup,
-.btn-start {
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: bold;
-  border-radius: 25px;
-  border: none;
-  cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.1s ease;
-}
-
-.btn-back {
-  background-color: #e0e0e0;
-  color: #333;
-}
-
-.btn-setup,
-.btn-start {
-  background-color: #ff6b00;
-  color: #ffffff;
-}
-
-.btn-back:active,
-.btn-setup:active,
-.btn-start:active {
-  transform: scale(0.98);
-}
-
-/* チャットセクション（カウント画面・リザルト画面共通） */
+/* チャットセクション */
 .chat-section {
   display: flex;
   align-items: center;
@@ -108,110 +48,152 @@ h2 {
   object-fit: cover;
 }
 
-
-/* ==========================================================================
-   2. 画面1: ホーム (HomeView)
-   ========================================================================== */
-
-/* リボン・ロゴコンテナ */
-.ribbon-container {
-  margin-bottom: 30px;
+/* --- 項目選択画面 (SettingView) --- */
+.setting-view-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
 }
 
-.logo-img {
-  max-width: 180px;
-  height: auto;
+/* 目標タイプ選択 */
+.target-type-selector {
+  background-color: #e0e0e0;
+  border-radius: 18px;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 85%;
+  margin-bottom: 20px;
+  box-sizing: border-box;
 }
 
-.ribbon {
-  font-size: 2.5rem;
+.target-type-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
   font-weight: bold;
-  color: #ff6b00;
+  padding: 4px;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s ease;
 }
 
-/* 名前入力インプット */
-.input-box {
-  width: 80%;
-  padding: 14px;
-  font-size: 1rem;
-  border: 2px solid #ddd;
-  border-radius: 12px;
+.target-type-btn.active {
+  color: #000;
+  font-weight: 900;
+  text-decoration: underline;
+}
+
+/* 入力枠 ＋ 単位 */
+.input-with-unit-container {
+  position: relative;
+  width: 85%;
   margin-bottom: 24px;
+}
+
+.goal-input-box {
+  width: 100%;
+  background-color: #d9d9d9;
+  border: none;
+  border-radius: 20px;
+  padding: 14px 40px 14px 16px;
+  font-size: 1.2rem;
+  font-weight: bold;
   text-align: center;
+  box-sizing: border-box;
   outline: none;
 }
 
-.input-box:focus {
-  border-color: #ff6b00;
-}
-
-
-/* ==========================================================================
-   3. 画面2: セットアップ (SetupView)
-   ========================================================================== */
-
-/* (共通スタイルを使用しているため、独自のスタイルが必要になったらここに追記) */
-
-
-/* ==========================================================================
-   4. 画面3: 項目設定 (SettingView)
-   ========================================================================== */
-
-/* ドロップダウンメニュー */
-.dropdown-container {
-  position: relative;
-  width: 80%;
-  margin-bottom: 30px;
-}
-
-.dropdown-toggle {
-  width: 100%;
-  padding: 14px 20px;
-  font-size: 1rem;
-  background-color: #ffffff;
-  border: 2px solid #ff6b00;
-  border-radius: 12px;
-  color: #333;
-  cursor: pointer;
-  text-align: left;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dropdown-menu {
+.unit-label {
   position: absolute;
-  top: 105%;
-  left: 0;
-  width: 100%;
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-  overflow: hidden;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
 }
 
-.dropdown-item {
-  width: 100%;
-  padding: 12px 20px;
-  border: none;
-  background: none;
-  text-align: left;
-  font-size: 0.95rem;
+/* キャラ選択 */
+.char-select-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 14px;
+  color: #111;
+}
+
+.char-list {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.char-card {
+  background: #ffffff;
+  border: 3px solid transparent;
+  border-radius: 24px;
+  width: 75px;
+  height: 75px;
+  padding: 6px;
   cursor: pointer;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.dropdown-item:hover {
-  background-color: #fff3eb;
-  color: #ff6b00;
+.char-card.selected {
+  border-color: #007bff;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 123, 255, 0.2);
 }
 
+.char-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 
-/* ==========================================================================
-   5. 画面4: カウント計測 (CountView)
-   ========================================================================== */
+/* ネオンイエローのスタートボタン */
+.btn-start-large {
+  width: 85%;
+  background-color: #ccff00;
+  border: 2px solid #b3e600;
+  border-radius: 28px;
+  padding: 12px;
+  font-size: 2rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  color: #000;
+  transition: transform 0.1s ease;
+}
 
+.btn-start-large:active {
+  transform: scale(0.97);
+}
+
+/* 戻るボタン */
+.btn-back-small {
+  position: absolute;
+  bottom: -40px;
+  left: 0;
+  background-color: #d9d9d9;
+  border: none;
+  border-radius: 12px;
+  padding: 6px 16px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: #333;
+}
+
+/* --- カウント計測画面 (CountView) --- */
 .count-page-container {
   width: 100%;
   display: flex;
@@ -219,7 +201,6 @@ h2 {
   align-items: center;
 }
 
-/* 残り距離カード */
 .distance-orange-card {
   background-color: #ff6b00;
   color: #ffffff;
@@ -236,7 +217,6 @@ h2 {
   margin: 0 4px;
 }
 
-/* フキダシ */
 .speech-bubble {
   background-color: #ffffff;
   border: 2px solid #ddd;
@@ -248,7 +228,6 @@ h2 {
   flex: 1;
 }
 
-/* ギブアップボタン */
 .bottom-button-wrapper {
   margin-top: 40px;
   width: 100%;
@@ -265,21 +244,9 @@ h2 {
   border-radius: 30px;
   padding: 14px 32px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
-.hand-icon {
-  width: 20px;
-  height: 20px;
-}
-
-
-/* ==========================================================================
-   6. 画面5: リザルト (ResultView)
-   ========================================================================== */
-
+/* --- リザルト画面 (ResultView) --- */
 .result-page-container {
   width: 100%;
   display: flex;
@@ -287,7 +254,6 @@ h2 {
   align-items: center;
 }
 
-/* 結果表示カード */
 .result-card-yellow {
   background-color: #ffb703;
   color: #333333;
@@ -299,16 +265,9 @@ h2 {
   align-items: center;
 }
 
-.result-label {
-  font-size: 1rem;
-}
+.result-label { font-size: 1rem; }
+.result-value { font-size: 2.8rem; font-weight: bold; }
 
-.result-value {
-  font-size: 2.8rem;
-  font-weight: bold;
-}
-
-/* リザルト用フキダシ */
 .result-speech-bubble {
   background-color: #ffffff;
   border: 2px solid #ddd;
@@ -317,23 +276,15 @@ h2 {
   flex: 1;
 }
 
-.bubble-text {
-  font-size: 0.95rem;
-  color: #333;
-}
+.bubble-text { font-size: 0.95rem; color: #333; }
 
-/* アクションボタン（ホーム / 再トライ） */
 .result-action-group {
   display: flex;
   gap: 16px;
   margin-top: 30px;
 }
 
-.btn-home-teal,
-.btn-retry-terracotta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.btn-home-teal, .btn-retry-terracotta {
   padding: 12px 24px;
   font-size: 1rem;
   font-weight: bold;
@@ -343,57 +294,14 @@ h2 {
   color: #ffffff;
 }
 
-.btn-home-teal {
-  background-color: #2a9d8f;
-}
+.btn-home-teal { background-color: #2a9d8f; }
+.btn-retry-terracotta { background-color: #e76f51; }
 
-.btn-retry-terracotta {
-  background-color: #e76f51;
-}
-
-.button-icon-white {
-  width: 18px;
-  height: 18px;
-}
-
-
-/* ==========================================================================
-   7. カウントダウンオーバーレイ (CountdownOverlay)
-   ========================================================================== */
-
+/* オーバーレイ */
 .countdown-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0; width: 100%; height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex; justify-content: center; align-items: center;
   z-index: 100;
-}
-
-.countdown-img {
-  width: 120px;
-  height: auto;
-  animation: popIn 0.3s ease;
-}
-
-.start-text {
-  font-size: 4rem;
-  font-weight: 900;
-  color: #ffb703;
-  animation: popIn 0.3s ease;
-}
-
-@keyframes popIn {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
 }

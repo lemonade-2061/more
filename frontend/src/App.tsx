@@ -15,19 +15,19 @@ import { getUserId } from './steps/userId';
 import { fetchCheer } from './api/cheer';
 import { voicePlayer } from './audio/player';
 
-// 応援セリフを取りに行く間隔。合成に数秒かかるので詰めすぎない
+// 初期キャラ画像
+import defaultCharImg from './assets/Vector (2)_3.png';
+
 const CHEER_INTERVAL_MS = 15000;
 
 export function App() {
   const [username, setUsername] = useState<string>('');
-
-  // 画面表示ステート ('home' | 'setup' | 'setting' | 'count' | 'result')
   const [currentView, setCurrentView] = useState<'home' | 'setup' | 'setting' | 'count' | 'result'>('home');
-
-  // カウントダウン用の状態
   const [countdown, setCountdown] = useState<number | null>(null);
 
-  // 計測まわり
+  // 選択中のキャラクター画像
+  const [selectedChar, setSelectedChar] = useState<string>(defaultCharImg);
+
   const [userId] = useState(getUserId);
   const detector = useStepDetector(userId);
   const [goalSteps, setGoalSteps] = useState<number>(30);
@@ -36,14 +36,12 @@ export function App() {
   const cheerBusyRef = useRef(false);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
-  // 計測中に画面が自動ロックされると加速度センサーごと止まるので、スリープを抑止する
   const acquireWakeLock = async () => {
     try {
       if ('wakeLock' in navigator) {
         wakeLockRef.current = await navigator.wakeLock.request('screen');
       }
     } catch (err) {
-      // 非対応ブラウザや省電力モードでは失敗するが、計測自体は続行できる
       console.warn('wake lock failed:', err);
     }
   };
@@ -52,7 +50,6 @@ export function App() {
     wakeLockRef.current = null;
   };
 
-  // リザルトデータ
   const [totalDistance, setTotalDistance] = useState<string>('0m');
   const [diffDistance, setDiffDistance] = useState<string>('+0m');
 
@@ -68,14 +65,16 @@ export function App() {
     setCurrentView('home');
   };
 
-  const handleStartCountdown = (goal: number) => {
+  // カウントダウン開始
+  const handleStartCountdown = (goal: number, charImg?: string) => {
     setGoalSteps(goal);
-    // ユーザー操作(タップ)の文脈で音声をアンロックしておく (スマホの自動再生対策)
+    if (charImg) {
+      setSelectedChar(charImg);
+    }
     voicePlayer.init();
     setCountdown(3);
   };
 
-  // カウントダウン処理: 0 になったら計測開始
   useEffect(() => {
     if (countdown === null) return;
 
@@ -98,7 +97,6 @@ export function App() {
     }
   }, [countdown, detector]);
 
-  // 計測終了の共通処理: 検出を止めて距離を集計しリザルトへ
   const finishSession = (achieved: boolean) => {
     detector.stop();
     releaseWakeLock();
@@ -115,16 +113,13 @@ export function App() {
     }
   };
 
-  // 目標歩数に到達したら自動でリザルトへ
   useEffect(() => {
     if (currentView !== 'count') return;
     if (detector.stepCount >= goalSteps) {
       finishSession(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detector.stepCount, currentView, goalSteps]);
 
-  // Wake Lock は一度画面が裏に回ると自動解除されるので、計測中に表へ戻ったら取り直す
   useEffect(() => {
     if (currentView !== 'count') return;
     const onVisibilityChange = () => {
@@ -136,7 +131,6 @@ export function App() {
     return () => document.removeEventListener('visibilitychange', onVisibilityChange);
   }, [currentView]);
 
-  // 計測中は定期的に応援セリフを取得して表示+読み上げ
   useEffect(() => {
     if (currentView !== 'count') return;
     const id = setInterval(async () => {
@@ -155,12 +149,10 @@ export function App() {
     return () => clearInterval(id);
   }, [currentView, userId, goalSteps]);
 
-  // ギブアップ処理でリザルト画面へ
   const handleGiveUp = () => {
     finishSession(false);
   };
 
-  // デバッグ判定: ?debug=voice でボイステスト、それ以外の ?debug は歩数調整画面
   const debugMode = new URLSearchParams(window.location.search).get('debug');
   if (debugMode === 'voice') {
     return <VoiceDebug />;
@@ -169,12 +161,10 @@ export function App() {
     return <StepDebug />;
   }
 
-  // 残り距離 (m): 目標歩数 - 現在歩数 を歩幅で換算
   const remainingM = Math.max(0, Math.round((goalSteps - detector.stepCount) * STRIDE_M));
 
   return (
     <div className="app-screen">
-      {/* 画面1: ホーム */}
       {currentView === 'home' && (
         <HomeView
           username={username}
@@ -183,7 +173,6 @@ export function App() {
         />
       )}
 
-      {/* 画面2: セットアップ事前 */}
       {currentView === 'setup' && (
         <SetupView
           username={username}
@@ -192,7 +181,6 @@ export function App() {
         />
       )}
 
-      {/* 画面3: 項目設定画面 */}
       {currentView === 'setting' && (
         <SettingView
           onGoBack={() => setCurrentView('setup')}
@@ -200,29 +188,46 @@ export function App() {
         />
       )}
 
-      {/* 画面4: カウント計測 */}
       {currentView === 'count' && (
         <CountView
           distance={remainingM}
           message={message}
+          charImg={selectedChar}
           onGiveUp={handleGiveUp}
         />
       )}
 
-      {/* 画面5: リザルト画面 */}
       {currentView === 'result' && (
         <ResultView
           totalDistance={totalDistance}
           diffDistance={diffDistance}
+          charImg={selectedChar}
           onGoHome={() => setCurrentView('home')}
-          onRetry={() => handleStartCountdown(goalSteps)}
+          onRetry={() => handleStartCountdown(goalSteps, selectedChar)}
         />
       )}
 
-      {/* カウントダウンオーバーレイ */}
       <CountdownOverlay countdown={countdown} />
     </div>
   );
 }
 
+export default App;=== 1 && <img src={img1} alt="1" className="countdown-img" />}
+          {countdown === 0 && <div className="start-text">START!</div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default App;
+=== 1 && <img src={img1} alt="1" className="countdown-img" />}
+          {countdown === 0 && <div className="start-text">START!</div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
+}
