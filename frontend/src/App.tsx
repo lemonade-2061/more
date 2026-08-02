@@ -74,7 +74,11 @@ export function App() {
   const handleStartCountdown = async (goal: number) => {
     setGoalSteps(goal);
     voicePlayer.init();
+    // iOS Safari は位置情報の許可もタップ操作の文脈でしか出せないので、
+    // await より前 (タップ直後) に GPS 記録を開始する
+    route.start();
     if (!(await detector.requestPermission())) {
+      route.stop();
       alert('モーションセンサーの許可が必要です。設定を確認してください。');
       return;
     }
@@ -96,7 +100,6 @@ export function App() {
         sessionStartRef.current = new Date();
         detector.reset();
         void detector.start();
-        route.start();
         void acquireWakeLock();
         setMessage('がんばろう！');
         setCurrentView('count');
