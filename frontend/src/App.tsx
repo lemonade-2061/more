@@ -15,6 +15,7 @@ import { useRouteTracker } from './steps/useRouteTracker';
 import RouteMap from './map/RouteMap';
 import { getUserId } from './steps/userId';
 import { fetchCheer } from './api/cheer';
+import { formatDistance } from './utils/format';
 import { voicePlayer } from './audio/player';
 
 // 応援セリフを取りに行く間隔。合成に数秒かかるので詰めすぎない
@@ -114,10 +115,10 @@ export function App() {
     route.stop();
     releaseWakeLock();
     const dist = Math.round(detector.stepCount * STRIDE_M);
-    setTotalDistance(`${dist}m`);
+    setTotalDistance(formatDistance(dist));
     const last = Number(localStorage.getItem('last-distance-m') ?? '0');
     const diff = dist - last;
-    setDiffDistance(`${diff >= 0 ? '+' : ''}${diff}m`);
+    setDiffDistance(`${diff >= 0 ? '+' : ''}${formatDistance(diff)}`);
     localStorage.setItem('last-distance-m', String(dist));
     setCurrentView('result');
     if (achieved) {

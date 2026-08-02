@@ -3,6 +3,7 @@ import char2Icon from '../assets/woman.png';
 import char3Icon from '../assets/robot.png';
 import handIcon from '../assets/hand.png';
 import {SPEAKERS} from './SettingView';
+import { formatDistanceParts } from '../utils/format';
 interface CountViewProps {
   distance: number;
   message: string;
@@ -13,11 +14,13 @@ interface CountViewProps {
 export default function CountView({ distance, message, onGiveUp, speakerId }: CountViewProps) {
   
   const currentSpeaker = SPEAKERS.find((s) => s.id === speakerId) || SPEAKERS[0];
+  const remaining = formatDistanceParts(distance);
   return (
     <div className="count-page-container">
       {/* 残り距離カード */}
       <div className="distance-orange-card">
-        あと<span className="distance-num">{distance}</span>m
+        あと<span className="distance-num">{remaining.value}</span>
+        {remaining.unit}
       </div>
 
       {/* キャラクターとフキダシ */}
