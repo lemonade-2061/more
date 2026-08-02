@@ -42,6 +42,15 @@ export default function SettingView({
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [goalType, setGoalType] = useState<GoalType>('steps');
   const [goalValue, setGoalValue] = useState<string>('30');
+  // 体重 (kg)。カロリー換算に使う。入力したら次回以降も覚えておく
+  const [weight, setWeight] = useState<string>(
+    () => localStorage.getItem('weight-kg') ?? String(WEIGHT_KG),
+  );
+
+  const handleWeightChange = (value: string) => {
+    setWeight(value);
+    localStorage.setItem('weight-kg', value);
+  };
 
   // どの目標タイプでも内部的には歩数に換算して扱う
   const toGoalSteps = (): number => {
@@ -56,7 +65,9 @@ export default function SettingView({
         return Math.round(v * STEPS_PER_MIN);
       case 'calorie': {
         // kcal → 距離(km) → 歩数。消費カロリー ≒ 体重 × 距離(km) × 1.05
-        const km = v / (WEIGHT_KG * 1.05);
+        const w = Number(weight);
+        const weightKg = Number.isFinite(w) && w > 0 ? w : WEIGHT_KG;
+        const km = v / (weightKg * 1.05);
         return Math.round((km * 1000) / STRIDE_M);
       }
     }
@@ -113,6 +124,21 @@ export default function SettingView({
         onChange={(e) => setGoalValue(e.target.value)}
         min={1}
       />
+
+      {/* カロリー目標のときだけ体重入力を出す (換算に使う) */}
+      {goalType === 'calorie' && (
+        <label className="description-text" style={{ display: 'block' }}>
+          体重 (kg)
+          <input
+            type="number"
+            className="input-box"
+            value={weight}
+            onChange={(e) => handleWeightChange(e.target.value)}
+            min={20}
+            max={200}
+          />
+        </label>
+      )}
 
       {/* 応援キャラ選択 */}
       <p className="description-text">応援してくれるキャラを選ぼう</p>
