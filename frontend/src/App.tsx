@@ -20,7 +20,12 @@ import { voicePlayer } from './audio/player';
 
 // 応援セリフを取りに行く間隔。合成に数秒かかるので詰めすぎない
 const CHEER_INTERVAL_MS = 15000;
-
+const MILESTONES_M = [100, 50, 10];
+const MILESTONE_TEXT: Record<number, string> = {
+  100: 'あと100メートルだよ頑張って',
+  50 : 'あと50メートル！がんばれ！！',
+  10 : 'あと10メートル！あともう一息',
+};
 export function App() {
   const [username, setUsername] = useState<string>('');
 
@@ -40,6 +45,11 @@ export function App() {
   const sessionStartRef = useRef<Date | null>(null);
   const cheerBusyRef = useRef(false);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const firedMilestonesRef = useRef<Set<number>>(new Set());
+
+  //目標が100m以内なら鳴らさない
+  const initalM = goalSteps * STRIDE_M;
+  firedMilestonesRef.current = new Set(MILESTONES_M.filter((m) => m >= initalM));
 
   // 計測中に画面が自動ロックされると加速度センサーごと止まるので、スリープを抑止する
   const acquireWakeLock = async () => {
