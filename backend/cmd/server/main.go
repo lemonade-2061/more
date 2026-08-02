@@ -70,6 +70,7 @@ func main() {
 	mux.HandleFunc("POST /api/steps", steps.Post)
 	mux.HandleFunc("DELETE /api/steps", steps.Delete)
 	mux.HandleFunc("GET /api/steps/summary", steps.Summary)
+	mux.HandleFunc("GET /api/cheer", steps.Cheer)
 
 	// /speech で音声合成＆S3保存
 	mux.HandleFunc("/speech", vvHandler.HandleSynthesize)
