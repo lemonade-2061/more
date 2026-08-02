@@ -7,13 +7,16 @@ import char3Icon from '../assets/robot.png';
 export const STRIDE_M = 0.7;
 // 歩行ペースの目安 (歩/分)。時間目標の換算用
 const STEPS_PER_MIN = 100;
+// カロリー換算用の想定体重 (kg)。消費カロリー ≒ 体重 × 距離(km) × 1.05 の近似式を使う
+export const WEIGHT_KG = 60;
 
-type GoalType = 'steps' | 'distance' | 'time';
+type GoalType = 'steps' | 'distance' | 'time' | 'calorie';
 
 const GOAL_LABELS: Record<GoalType, string> = {
   steps: '目標歩数',
   distance: '目標距離（km）',
   time: '目標時間（分）',
+  calorie: '消費カロリー（kcal）',
 };
 
 // 応援キャラ (VOICEVOX のスタイルID)。増やしたら README のクレジット表記も追加すること
@@ -51,6 +54,11 @@ export default function SettingView({
         return Math.round((v * 1000) / STRIDE_M);
       case 'time':
         return Math.round(v * STEPS_PER_MIN);
+      case 'calorie': {
+        // kcal → 距離(km) → 歩数。消費カロリー ≒ 体重 × 距離(km) × 1.05
+        const km = v / (WEIGHT_KG * 1.05);
+        return Math.round((km * 1000) / STRIDE_M);
+      }
     }
   };
 
