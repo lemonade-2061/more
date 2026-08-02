@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -55,4 +56,24 @@ func (s *S3AudioStore) Exists(ctx context.Context, key string) (bool, error) {
 	}
 	// エラーが出なければ「存在する(true)」
 	return true, nil
+}
+
+// 4. Load: 保存されている音声データをS3から読み出す処理
+func (s *S3AudioStore) Load(ctx context.Context, key string) ([]byte, error) {
+	output, err := s.client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("S3からのデータ読み込みに失敗しました: %w", err)
+	}
+	defer output.Body.Close()
+
+	// 取得したストリームデータを byte 配列に変換して返す
+	data, err := io.ReadAll(output.Body)
+	if err != nil {
+		return nil, fmt.Errorf("S3データの読み取りに失敗しました: %w", err)
+	}
+
+	return data, nil
 }
