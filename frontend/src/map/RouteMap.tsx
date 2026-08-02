@@ -43,7 +43,7 @@ export default function RouteMap({ points }: RouteMapProps) {
     return(
       <div style={{ width: '100%', maxWidth: 440, margin: '16px auto 0' }}>
         <p style={{ margin: '0 0 4px', fontWeight: 'bold' }}>今回のルート</p>
-        <p style={{ color: '#888', fontSize: 14 }}>
+        <p style={{ color: '#000', fontSize: 14 }}>
           GPSの記録がありませんでした (記録点: {points.length}個)。
           屋内や短時間の計測では取得できないことがあります。
         </p>
