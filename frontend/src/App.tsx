@@ -44,7 +44,6 @@ export function App() {
         wakeLockRef.current = await navigator.wakeLock.request('screen');
       }
     } catch (err) {
-      // 非対応ブラウザや省電力モードでは失敗するが、計測自体は続行できる
       console.warn('wake lock failed:', err);
     }
   };
@@ -71,9 +70,7 @@ export function App() {
 
   const handleStartCountdown = async (goal: number) => {
     setGoalSteps(goal);
-    // ユーザー操作(タップ)の文脈で音声をアンロックしておく (スマホの自動再生対策)
     voicePlayer.init();
-    // 同じくタップの文脈でモーションセンサーの許可を取る (iOS はここでしか出せない)
     if (!(await detector.requestPermission())) {
       alert('モーションセンサーの許可が必要です。設定を確認してください。');
       return;
@@ -132,7 +129,7 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detector.stepCount, currentView, goalSteps]);
 
-  // Wake Lock は一度画面が裏に回ると自動解除されるので、計測中に表へ戻ったら取り直す
+  // Wake Lock
   useEffect(() => {
     if (currentView !== 'count') return;
     const onVisibilityChange = () => {
@@ -144,7 +141,7 @@ export function App() {
     return () => document.removeEventListener('visibilitychange', onVisibilityChange);
   }, [currentView]);
 
-  // 計測中は定期的に応援セリフを取得して表示+読み上げ
+  // 応援メッセージ
   useEffect(() => {
     if (currentView !== 'count') return;
     const id = setInterval(async () => {
@@ -165,12 +162,12 @@ export function App() {
     return () => clearInterval(id);
   }, [currentView, userId, goalSteps, speakerId]);
 
-  // ギブアップ処理でリザルト画面へ
+  // ギブアップ処理
   const handleGiveUp = () => {
     finishSession(false);
   };
 
-  // デバッグ判定: ?debug=voice でボイステスト、それ以外の ?debug は歩数調整画面
+  // デバッグ判定
   const debugMode = new URLSearchParams(window.location.search).get('debug');
   if (debugMode === 'voice') {
     return <VoiceDebug />;
@@ -179,61 +176,87 @@ export function App() {
     return <StepDebug />;
   }
 
-  // 残り距離 (m): 目標歩数 - 現在歩数 を歩幅で換算
+  // 残り距離 (m)
   const remainingM = Math.max(0, Math.round((goalSteps - detector.stepCount) * STRIDE_M));
 
   return (
-    <div className="app-screen">
-      {/* 画面1: ホーム */}
-      {currentView === 'home' && (
-        <HomeView
-          username={username}
-          setUsername={setUsername}
-          onGoToSetup={handleGoToSetup}
-        />
-      )}
+    <>
+      {/* ★ 画面幅の制限を受けずに全体へ降らせる背景アニメーション */}
+      <div className="bg-rain-container">
+        {/* 左側〜中央エリア */}
+        <div className="line bright" style={{ width: '12px', height: '100px', left: '-20%', animationDuration: '4.2s', animationDelay: '0s' }}></div>
+        <div className="line dim"    style={{ width: '10px', height: '140px', left: '-5%',  animationDuration: '5.1s', animationDelay: '1.2s' }}></div>
+        <div className="line medium" style={{ width: '8px',  height: '90px',  left: '10%',  animationDuration: '4.6s', animationDelay: '0.4s' }}></div>
+        <div className="line dim"    style={{ width: '10px', height: '130px', left: '25%',  animationDuration: '5.4s', animationDelay: '2.8s' }}></div>
+        <div className="line bright" style={{ width: '14px', height: '180px', left: '38%',  animationDuration: '3.8s', animationDelay: '0.2s' }}></div>
 
-      {/* 画面2: セットアップ事前 */}
-      {currentView === 'setup' && (
-        <SetupView
-          username={username}
-          onGoBack={handleGoBack}
-          onGoNext={() => setCurrentView('setting')}
-        />
-      )}
+        {/* 中央〜右側エリア */}
+        <div className="line medium" style={{ width: '8px',  height: '80px',  left: '50%',  animationDuration: '4.8s', animationDelay: '1.0s' }}></div>
+        <div className="line medium" style={{ width: '12px', height: '110px', left: '62%',  animationDuration: '4.9s', animationDelay: '3.1s' }}></div>
+        <div className="line bright" style={{ width: '16px', height: '200px', left: '75%',  animationDuration: '4.0s', animationDelay: '0.6s' }}></div>
+        <div className="line dim"    style={{ width: '10px', height: '100px', left: '88%',  animationDuration: '5.5s', animationDelay: '1.4s' }}></div>
 
-      {/* 画面3: 項目設定画面 */}
-      {currentView === 'setting' && (
-        <SettingView
-          onGoBack={() => setCurrentView('setup')}
-          onStartCountdown={handleStartCountdown}
-          speakerId={speakerId}
-          onSelectSpeaker={setSpeakerId}
-        />
-      )}
+        {/* 右下に流れ込んで降ってくる右側外枠エリア */}
+        <div className="line bright" style={{ width: '14px', height: '110px', left: '100%', animationDuration: '3.9s', animationDelay: '0.9s' }}></div>
+        <div className="line dim"    style={{ width: '8px',  height: '130px', left: '115%', animationDuration: '5.3s', animationDelay: '0.3s' }}></div>
+        <div className="line medium" style={{ width: '10px', height: '90px',  left: '130%', animationDuration: '4.7s', animationDelay: '2.5s' }}></div>
+        <div className="line bright" style={{ width: '12px', height: '120px', left: '145%', animationDuration: '4.2s', animationDelay: '1.7s' }}></div>
+        <div className="line dim"    style={{ width: '10px', height: '150px', left: '160%', animationDuration: '5.0s', animationDelay: '0.5s' }}></div>
+      </div>
 
-      {/* 画面4: カウント計測 */}
-      {currentView === 'count' && (
-        <CountView
-          distance={remainingM}
-          message={message}
-          onGiveUp={handleGiveUp}
-        />
-      )}
+      {/* アプリ画面コンテンツ */}
+      <div className="app-screen">
+        {/* 画面1: ホーム */}
+        {currentView === 'home' && (
+          <HomeView
+            username={username}
+            setUsername={setUsername}
+            onGoToSetup={handleGoToSetup}
+          />
+        )}
 
-      {/* 画面5: リザルト画面 */}
-      {currentView === 'result' && (
-        <ResultView
-          totalDistance={totalDistance}
-          diffDistance={diffDistance}
-          onGoHome={() => setCurrentView('home')}
-          onRetry={() => handleStartCountdown(goalSteps)}
-        />
-      )}
+        {/* 画面2: セットアップ事前 */}
+        {currentView === 'setup' && (
+          <SetupView
+            username={username}
+            onGoBack={handleGoBack}
+            onGoNext={() => setCurrentView('setting')}
+          />
+        )}
 
-      {/* カウントダウンオーバーレイ */}
-      <CountdownOverlay countdown={countdown} />
-    </div>
+        {/* 画面3: 項目設定画面 */}
+        {currentView === 'setting' && (
+          <SettingView
+            onGoBack={() => setCurrentView('setup')}
+            onStartCountdown={handleStartCountdown}
+            speakerId={speakerId}
+            onSelectSpeaker={setSpeakerId}
+          />
+        )}
+
+        {/* 画面4: カウント計測 */}
+        {currentView === 'count' && (
+          <CountView
+            distance={remainingM}
+            message={message}
+            onGiveUp={handleGiveUp}
+          />
+        )}
+
+        {/* 画面5: リザルト画面 */}
+        {currentView === 'result' && (
+          <ResultView
+            totalDistance={totalDistance}
+            diffDistance={diffDistance}
+            onGoHome={() => setCurrentView('home')}
+            onRetry={() => handleStartCountdown(goalSteps)}
+          />
+        )}
+
+        {/* カウントダウンオーバーレイ */}
+        <CountdownOverlay countdown={countdown} />
+      </div>
+    </>
   );
 }
 

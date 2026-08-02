@@ -1,20 +1,22 @@
 /* ==========================================================================
-    1. 全体共通スタイル (Global / Layout / Common)
+   1. 全体共通スタイル (Global / Layout / Common)
    ========================================================================== */
 
-/* 全体の基本配置 */
+/* ==========================================================================
+   1. 全体共通スタイル (Global / Layout / Common)
+   ========================================================================== */
+
+/* スマホ表示専用レイアウト */
 .app-screen {
   width: 100%;
-  max-width: 480px; /* スマホ表示向けの最大幅 */
   min-height: 100vh;
-  margin: 0 auto;
   padding: 20px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #f9f9f9;
+  background-color: transparent !important; /* 雨背景を見せるため透明化 */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   position: relative;
   overflow: hidden;
@@ -30,6 +32,7 @@
 }
 
 /* 共通テキスト・タイトル */
+/* 共通テキスト・タイトル */
 h2 {
   font-size: 1.8rem;
   color: #333;
@@ -42,9 +45,13 @@ h2 {
   margin-bottom: 8px;
 }
 
+/* ★ 設定された名前の文字（赤文字）を大きく太く強調 */
 .greeting-text span {
-  font-weight: bold;
+  font-size: 1.6rem;    /* 1.2rem から 1.6rem に大きく拡大 */
+  font-weight: 900;     /* 太さを最大値(900/超極太)に設定 */
   color: #ff0000;
+  margin: 0 4px;        /* 前後に少しスペースを空けて見やすく */
+  display: inline-block;/* アニメーションやサイズ変更を綺麗に反映 */
 }
 
 .description-text {
@@ -110,7 +117,7 @@ h2 {
 
 
 /* ==========================================================================
-    2. 画面1: ホーム (HomeView)
+   2. 画面1: ホーム (HomeView)
    ========================================================================== */
 
 /* リボン・ロゴコンテナ */
@@ -119,7 +126,6 @@ h2 {
 }
 
 .logo-img {
-
   height: auto;
   width: 400px;
   object-fit: contain;
@@ -142,11 +148,10 @@ h2 {
   margin-bottom: 24px;
   text-align: center;
   outline: none;
-  text-align: center;
-  outline: none;
   font-family: inherit;
   color: #333;
 }
+
 .input-box::placeholder {
   font-family: inherit;     
   font-weight: bold;       
@@ -156,14 +161,12 @@ h2 {
 
 
 /* ==========================================================================
-    3. 画面2: セットアップ (SetupView)
+   3. 画面2: セットアップ (SetupView)
    ========================================================================== */
-
-/* (共通スタイルを使用しているため、独自のスタイルが必要になったらここに追記) */
 
 
 /* ==========================================================================
-    4. 画面3: 項目設定 (SettingView)
+   4. 画面3: 項目設定 (SettingView)
    ========================================================================== */
 
 /* ドロップダウンメニュー */
@@ -367,42 +370,115 @@ h2 {
 
 
 /* ==========================================================================
-   7. カウントダウンオーバーレイ (CountdownOverlay)
+   7. カウントダウンオーバーレイ (全画面強制適用版)
    ========================================================================== */
 
 .countdown-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 99999 !important; /* 絶対に一番手前 */
 }
 
 .countdown-img {
-  width: 120px;
-  height: auto;
-  animation: popIn 0.3s ease;
+  width: 160px !important;
+  height: auto !important;
+  animation: popIn 0.3s ease !important;
 }
 
 .start-text {
-  font-size: 4rem;
-  font-weight: 900;
-  color: #ffb703;
-  animation: popIn 0.3s ease;
+  font-size: 6rem !important; /* より超巨大化 */
+  font-weight: 900 !important;
+  color: #ffb703 !important;
+  animation: popIn 0.3s ease !important;
 }
 
 @keyframes popIn {
   0% {
-    transform: scale(0.5);
+    transform: scale(0.3);
     opacity: 0;
   }
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+
+/* ==========================================================================
+   8. 背景アニメーション (全画面・斜めに流れる雨アニメーション)
+   ========================================================================== */
+
+/* 全画面固定の水色背景コンテナ */
+.bg-rain-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100lvh; 
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background-color: #64C8FF;
+}
+
+/* メイン画面の背景透明化 */
+.app-screen {
+  background-color: transparent !important;
+}
+
+.view, 
+.countdown-overlay {
+  position: relative;
+  z-index: 1;
+}
+
+/* 雨のライン基本スタイル */
+.line {
+  position: absolute;
+  border-radius: 20px;
+  top: -200px;
+  will-change: transform;
+  animation: fall 4s linear infinite;
+}
+
+/* 不透明度 */
+.line.bright {
+  background-color: #ffffff;
+}
+.line.medium {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+.line.dim {
+  background-color: rgba(255, 255, 255, 0.45);
+}
+
+/* ★ 右上から左下へ斜めに気持ちよく流れていくアニメーション */
+@keyframes fall {
+  0% {
+    /* スタート位置：画面上部の外側 */
+    transform: translate(0, 0) rotate(50deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    /* 50度の傾きに沿って、X軸(左へ-80vw) と Y軸(下へ120lvh) へ勢いよく斜めに移動 */
+    transform: translate(-80vw, calc(120lvh + 200px)) rotate(50deg);
+    opacity: 0;
   }
 }
