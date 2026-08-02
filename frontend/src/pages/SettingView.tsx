@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import char1Icon from '../assets/man.png';
+import char2Icon from '../assets/woman.png';
+import char3Icon from '../assets/robot.png';
 
 // 歩幅 (m)。距離・時間の目標を歩数に換算するのに使う
 export const STRIDE_M = 0.7;
@@ -15,9 +18,9 @@ const GOAL_LABELS: Record<GoalType, string> = {
 
 // 応援キャラ (VOICEVOX のスタイルID)。増やしたら README のクレジット表記も追加すること
 export const SPEAKERS = [
-  { id: 3, name: 'ずんだもん' },
-  { id: 2, name: '四国めたん' },
-  { id: 8, name: '春日部つむぎ' },
+  { id: 3, name: '', icon: char1Icon },
+  { id: 2, name: '', icon: char2Icon },
+  { id: 8, name: '', icon: char3Icon },
 ] as const;
 
 interface SettingViewProps {
@@ -105,19 +108,47 @@ export default function SettingView({
 
       {/* 応援キャラ選択 */}
       <p className="description-text">応援してくれるキャラを選ぼう</p>
-      <div className="button-group">
+      <div className="button-group" style={{ gap: '10px',justifyContent: 'center' }}>
         {SPEAKERS.map((s) => (
           <button
             key={s.id}
             type="button"
-            className="dropdown-item"
+
             style={{
-              border: s.id === speakerId ? '3px solid #ff6b00' : '3px solid transparent',
-              borderRadius: 12,
+              border: s.id === speakerId ? '3px solid #ff6b00' : '3px solid #ccc',
+              borderRadius: 16,
+              padding: '10px',
+              backgourndColor: s.id === speakerId ? '#fff3eb' : '#f9f9f9',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              width: '100px',
               fontWeight: s.id === speakerId ? 'bold' : 'normal',
             }}
             onClick={() => onSelectSpeaker(s.id)}
           >
+          <img 
+              src={s.icon} 
+              alt={s.name} 
+              style={{ 
+                width: '60px', 
+                height: '60px', 
+                objectFit: 'contain',
+                marginBottom: '8px'
+              }} 
+            />
+            <span style={{ 
+              fontWeight: s.id === speakerId ? 'bold' : 'normal',
+              fontSize: '14px',
+              color: '#333'
+            }}></span>
+
+
+
+
+
+
+
             {s.name}
           </button>
         ))}

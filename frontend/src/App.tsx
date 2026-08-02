@@ -218,6 +218,7 @@ export function App() {
           distance={remainingM}
           message={message}
           onGiveUp={handleGiveUp}
+          speakerId={speakerId}
         />
       )}
 
@@ -228,6 +229,7 @@ export function App() {
           diffDistance={diffDistance}
           onGoHome={() => setCurrentView('home')}
           onRetry={() => handleStartCountdown(goalSteps)}
+          speakerId={speakerId}
         />
       )}
 
