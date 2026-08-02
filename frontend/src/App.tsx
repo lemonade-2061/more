@@ -47,10 +47,6 @@ export function App() {
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const firedMilestonesRef = useRef<Set<number>>(new Set());
 
-  //目標が100m以内なら鳴らさない
-  const initalM = goalSteps * STRIDE_M;
-  firedMilestonesRef.current = new Set(MILESTONES_M.filter((m) => m >= initalM));
-
   // 計測中に画面が自動ロックされると加速度センサーごと止まるので、スリープを抑止する
   const acquireWakeLock = async () => {
     try {
@@ -112,6 +108,10 @@ export function App() {
         detector.reset();
         void detector.start();
         void acquireWakeLock();
+        // 開始時点の残距離より大きいマイルストーンは最初から消化済みにする
+        // (目標21mで「あと100m」が鳴る事故の防止)。セッション開始の一度だけ実行
+        const initialM = goalSteps * STRIDE_M;
+        firedMilestonesRef.current = new Set(MILESTONES_M.filter((m) => m >= initialM));
         setMessage('がんばろう！');
         setCurrentView('count');
       }, 800);
@@ -139,6 +139,9 @@ export function App() {
     }
   };
 
+  // 残り距離 (m): 目標歩数 - 現在歩数 を歩幅で換算
+  const remainingM = Math.max(0, Math.round((goalSteps - detector.stepCount) * STRIDE_M));
+
   // 目標歩数に到達したら自動でリザルトへ
   useEffect(() => {
     if (currentView !== 'count') return;
@@ -147,6 +150,22 @@ export function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detector.stepCount, currentView, goalSteps]);
+
+  // マイルストーン通過 (あと100/50/10m) で音声を鳴らす
+  useEffect(() => {
+    if (currentView !== 'count') return;
+    for (const m of MILESTONES_M) {
+      if (remainingM <= m && !firedMilestonesRef.current.has(m)) {
+        firedMilestonesRef.current.add(m);
+        const text = MILESTONE_TEXT[m];
+        setMessage(text);
+        void voicePlayer.play(
+          `/speech?${new URLSearchParams({ text, speaker: String(speakerId) })}`,
+        );
+        break; // 1回の更新で鳴らすのは1つだけ
+      }
+    }
+  }, [remainingM, currentView, speakerId]);
 
   // Wake Lock
   useEffect(() => {
@@ -194,9 +213,6 @@ export function App() {
   if (debugMode !== null) {
     return <StepDebug />;
   }
-
-  // 残り距離 (m)
-  const remainingM = Math.max(0, Math.round((goalSteps - detector.stepCount) * STRIDE_M));
 
   return (
     <>
