@@ -127,7 +127,7 @@ h2 {
 
 .logo-img {
   height: auto;
-  width: 400px;
+  width: 380px;
   object-fit: contain;
   transform: translateY(-80px);
 }
@@ -421,12 +421,11 @@ h2 {
   }
 }
 
-
 /* ==========================================================================
-    8. 背景アニメーション (全画面・斜めに流れる雨アニメーション)
+    8. 背景アニメーション (最初から45度傾いた状態で滑り込む風アニメーション)
    ========================================================================== */
 
-/* 全画面固定の水色背景コンテナ */
+/* 全画面固定の背景コンテナ */
 .bg-rain-container {
   position: fixed;
   top: 0;
@@ -438,7 +437,7 @@ h2 {
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
-  background-color: #64C8FF;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
 /* メイン画面の背景透明化 */
@@ -452,43 +451,45 @@ h2 {
   z-index: 1;
 }
 
-/* 雨のライン基本スタイル */
+/* 風のライン基本スタイル */
 .line {
   position: absolute;
-  border-radius: 20px;
-  top: -200px;
+  top: 0; /* 基準位置を上端に固定 */
+  border-radius: 4px;
   will-change: transform;
-  animation: fall 4s linear infinite;
+  /* 45度傾けた状態を初期値として保持 */
+  transform: rotate(45deg);
+  /* ハイスピードな風のアニメーション */
+  animation: wind-dash-45 0.8s linear infinite;
 }
 
-/* 不透明度 */
+/* 不透明度 & 光沢感 */
 .line.bright {
-  background-color: #ffffff;
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 100%);
 }
 .line.medium {
-  background-color: rgba(255, 255, 255, 0.7);
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.65) 100%);
 }
 .line.dim {
-  background-color: rgba(255, 255, 255, 0.45);
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 100%);
 }
 
-/* ★ 右上から左下へ斜めに気持ちよく流れていくアニメーション */
-@keyframes fall {
+/* ★ 画面外の右上（X:+30vh, Y:-30vh）から登場し、左下（X:-120vh, Y:+120vh）へ滑走 */
+@keyframes wind-dash-45 {
   0% {
-    /* スタート位置：画面上部の外側 */
-    transform: translate(0, 0) rotate(50deg);
+    /* 登場時：画面の右上外側にあらかじめ下げて配置 */
+    transform: translate(30vh, -30vh) rotate(45deg);
     opacity: 0;
   }
-  10% {
+  15% {
     opacity: 1;
   }
-  90% {
+  85% {
     opacity: 1;
   }
   100% {
-    /* 50度の傾きに沿って、X軸(左へ-80vw) と Y軸(下へ120lvh) へ勢いよく斜めに移動 */
-    transform: translate(-80vw, calc(120lvh + 200px)) rotate(50deg);
+    /* 退場時：45度の直線に沿って左下画面外へ一気に突き抜ける */
+    transform: translate(-120vh, 120vh) rotate(45deg);
     opacity: 0;
   }
 }
-
